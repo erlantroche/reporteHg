@@ -1,98 +1,89 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { INITIAL_RISK_ZONES, RiskZone } from '../data/mocks';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+type LayerMode = 'peligro' | 'riesgo' | 'incertidumbre';
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
+export default function MapScreen() {
+  const [layer, setLayer] = useState<LayerMode>('riesgo');
+  const [selected, setSelected] = useState<RiskZone>(INITIAL_RISK_ZONES[0]);
+
+  const badgeColor = (level: RiskZone['riskLevel']) => {
+    if (level === 'alto') return '#dc2626';
+    if (level === 'medio') return '#d97706';
+    return '#16a34a';
+  };
+
   return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+    <ScrollView contentContainerStyle={styles.container}>
+      <Text style={styles.title}>ReporteHg — Riesgo y Alerta</Text>
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+      <View style={styles.layerRow}>
+        {(['peligro', 'riesgo', 'incertidumbre'] as LayerMode[]).map((item) => (
+          <Pressable
+            key={item}
+            style={[styles.layerBtn, layer === item && styles.layerBtnActive]}
+            onPress={() => setLayer(item)}
+          >
+            <Text style={[styles.layerText, layer === item && styles.layerTextActive]}>
+              {item.toUpperCase()}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Zonas estimadas (capa: {layer})</Text>
+        <Text style={styles.subtext}>
+          Peligro = interpolación de Hg | Riesgo = peligro × exposición × vulnerabilidad | Incertidumbre = transparencia por distancia/muestreo.
+        </Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        {INITIAL_RISK_ZONES.map((zone) => {
+          const isSelected = selected.id === zone.id;
+          const opacity = layer === 'incertidumbre' ? Math.max(0.3, 1 - zone.uncertainty) : 1;
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+          return (
+            <Pressable
+              key={zone.id}
+              style={[styles.zoneItem, isSelected && styles.zoneSelected, { opacity }]}
+              onPress={() => setSelected(zone)}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.zoneName}>{zone.name}</Text>
+                <Text style={styles.subtext}>{zone.riverOrArea}</Text>
+              </View>
+              <View style={[styles.badge, { backgroundColor: badgeColor(zone.riskLevel) }]}>
+                <Text style={styles.badgeText}>{zone.riskLevel.toUpperCase()}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.cardTitle}>Detalle: {selected.name}</Text>
+        <Text>Valor interpolado estimado: {selected.estimatedHgMgKg} mg/kg</Text>
+        <Text>Incertidumbre: {Math.round(selected.uncertainty * 100)}%</Text>
+        <Text>Exposición: {Math.round(selected.exposureScore * 100)}% · Vulnerabilidad: {Math.round(selected.vulnerabilityScore * 100)}%</Text>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  container: { padding: 16, gap: 12 },
+  title: { fontSize: 20, fontWeight: '700' },
+  layerRow: { flexDirection: 'row', gap: 8 },
+  layerBtn: { flex: 1, padding: 10, borderRadius: 8, backgroundColor: '#e5e7eb', alignItems: 'center' },
+  layerBtnActive: { backgroundColor: '#111827' },
+  layerText: { fontWeight: '600', color: '#111827', fontSize: 12 },
+  layerTextActive: { color: '#ffffff' },
+  card: { padding: 14, borderRadius: 10, backgroundColor: '#f9fafb', borderWidth: 1, borderColor: '#e5e7eb', gap: 8 },
+  cardTitle: { fontSize: 16, fontWeight: '700' },
+  subtext: { fontSize: 12, color: '#4b5563' },
+  zoneItem: { flexDirection: 'row', alignItems: 'center', padding: 10, borderRadius: 8, backgroundColor: '#ffffff', borderWidth: 1, borderColor: '#e5e7eb' },
+  zoneSelected: { borderColor: '#2563eb', borderWidth: 2 },
+  zoneName: { fontWeight: '600' },
+  badge: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6 },
+  badgeText: { color: '#ffffff', fontSize: 11, fontWeight: '700' },
 });
