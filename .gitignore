@@ -41,3 +41,8 @@ example
 # generated native folders
 /ios
 /android
+
+# ReporteHg
+_archivo/
+qgis/osm_crudo/
+*.tgz

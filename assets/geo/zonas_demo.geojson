@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "zonas_demo",
+"xy_coordinate_resolution": 1e-05,
+"features": [
+{"type":"Feature","properties":{"id":"z-1","nombre":"Tramo Río Alto — Sector A","hg_mgkg":0.65,"incert":0.25,"exposic":0.8,"vulnerab":0.7,"riesgo":"alto"},"geometry":{"type":"Point","coordinates":[-67.905,-15.462]}},
+{"type":"Feature","properties":{"id":"z-2","nombre":"Ribera Media — Toma comunal","hg_mgkg":0.28,"incert":0.45,"exposic":0.6,"vulnerab":0.5,"riesgo":"medio"},"geometry":{"type":"Point","coordinates":[-67.872,-15.505]}},
+{"type":"Feature","properties":{"id":"z-3","nombre":"Sector Aguas Arriba","hg_mgkg":0.08,"incert":0.15,"exposic":0.2,"vulnerab":0.3,"riesgo":"bajo"},"geometry":{"type":"Point","coordinates":[-67.985,-15.585]}}
+]
+}

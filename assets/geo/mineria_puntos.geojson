@@ -1,0 +1,18 @@
+{
+"type": "FeatureCollection",
+"name": "mineria_puntos",
+"xy_coordinate_resolution": 1e-05,
+"features": [
+{"type":"Feature","properties":{"osm_id":"node/4827010022","nombre":"WEPEMAR de COOPERATIVA MINERA AURIFERA \"WALMAR\" LTDA.","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-67.66723,-15.22003]}},
+{"type":"Feature","properties":{"osm_id":"node/5823642380","nombre":"Santa Ana","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-67.67808,-15.2205]}},
+{"type":"Feature","properties":{"osm_id":"node/5823642381","nombre":"CONFUCIO","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-67.67842,-15.22483]}},
+{"type":"Feature","properties":{"osm_id":"node/12360029700","nombre":"Tesoro del Illampu Chajhuamayo","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.30461,-15.23829]}},
+{"type":"Feature","properties":{"osm_id":"node/12360061998","nombre":"Familia","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.31233,-15.24669]}},
+{"type":"Feature","properties":{"osm_id":"node/12360062010","nombre":"Carnavalito","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.31601,-15.24309]}},
+{"type":"Feature","properties":{"osm_id":"node/12607081214","nombre":"Joyita de Oro","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.31778,-15.66552]}},
+{"type":"Feature","properties":{"osm_id":"node/12607209489","nombre":"Tajo de Yuna","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.28199,-15.629]}},
+{"type":"Feature","properties":{"osm_id":"node/12607209490","nombre":"Chusi II","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-68.26042,-15.62615]}},
+{"type":"Feature","properties":{"osm_id":"node/12772858051","nombre":"Guanaeños III","tipo":"industrial=mine"},"geometry":{"type":"Point","coordinates":[-67.88548,-15.50886]}},
+{"type":"Feature","properties":{"osm_id":"node/13683996014","nombre":"Campamento 6 de Enero","tipo":"place=hamlet"},"geometry":{"type":"Point","coordinates":[-67.90513,-15.52023]}}
+]
+}

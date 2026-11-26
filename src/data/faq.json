@@ -1,0 +1,473 @@
+[
+  {
+    "id": 1,
+    "pregunta": "¿Qué pescado puedo comer sin peligro?",
+    "respuesta": "En el río Beni, el pacú, el tambaquí, el paiche y la yatorana tienen poco mercurio y son muy nutritivos: son las opciones más seguras. El blanquillo es el que más mercurio tiene, y se recomienda no comerlo. El surubí, el pantalón y la corvina tienen niveles intermedios, por encima del límite europeo: se pueden comer, pero con menos frecuencia.",
+    "fuente": "umsa_boletin_peces_beni.pdf p. 2-3 + cincia_mercurio_loreto_peces.pdf p. 46",
+    "tema": "peces",
+    "palabras_clave": [
+      "pescado",
+      "comer",
+      "pacú",
+      "tambaquí",
+      "surubí",
+      "dorado",
+      "seguro"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 2,
+    "pregunta": "¿Por qué algunos peces tienen más mercurio que otros?",
+    "respuesta": "El mercurio pasa de los peces pequeños a los que se los comen. Por eso los peces grandes que cazan a otros peces tienen más mercurio que los que comen plantas o barro.",
+    "fuente": "oms_mercurio_salud.pdf p. 1 + cincia_mercurio_loreto_peces.pdf p. 12 y 45",
+    "tema": "peces",
+    "palabras_clave": [
+      "depredador",
+      "carnívoro",
+      "grande",
+      "acumula",
+      "cadena"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 3,
+    "pregunta": "¿Cocinar el pescado quita el mercurio?",
+    "respuesta": "No. Cocinar los alimentos no elimina el mercurio. Lo que sirve es elegir peces con poco mercurio.",
+    "fuente": "oms_mercurio_salud.pdf p. 1",
+    "tema": "peces",
+    "palabras_clave": [
+      "cocinar",
+      "hervir",
+      "freír",
+      "ahumar",
+      "quitar"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 4,
+    "pregunta": "¿Cuántas veces por semana puedo comer pescado?",
+    "respuesta": "Nuestros documentos no dan un número exacto de veces. El pacú, el tambaquí y el paiche se pueden comer seguido. El surubí y la corvina, con menos frecuencia, y el blanquillo mejor no comerlo. El límite de la OMS (0,5 mg de mercurio por kilo de pescado) está pensado para unos 200 gramos de pescado por semana.",
+    "fuente": "umsa_boletin_peces_beni.pdf p. 3 + cincia_mercurio_loreto_peces.pdf p. 4",
+    "tema": "peces",
+    "palabras_clave": [
+      "semana",
+      "cuánto",
+      "cantidad",
+      "frecuencia",
+      "veces"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 5,
+    "pregunta": "¿Debo dejar de comer pescado?",
+    "respuesta": "No. El pescado amazónico sigue siendo, en su mayoría, un alimento seguro y valioso, y es la principal fuente de proteína en la región. Lo importante es elegir bien: pacú, tambaquí y paiche son opciones seguras y nutritivas.",
+    "fuente": "umsa_boletin_peces_beni.pdf p. 3 + cincia_mercurio_loreto_peces.pdf p. 61",
+    "tema": "peces",
+    "palabras_clave": [
+      "dejar",
+      "dejar de comer",
+      "nutritivo",
+      "proteína"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 6,
+    "pregunta": "¿Qué es el mercurio?",
+    "respuesta": "Es un elemento que existe en la naturaleza y que la minería del oro libera al ambiente. Es tóxico para el sistema nervioso, los riñones, los pulmones, la piel y los ojos. La OMS lo cuenta entre los 10 productos químicos más preocupantes para la salud.",
+    "fuente": "oms_mercurio_salud.pdf p. 1",
+    "tema": "salud",
+    "palabras_clave": [
+      "qué es",
+      "azogue",
+      "metal",
+      "plateado"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 7,
+    "pregunta": "¿Cómo entra el mercurio a mi cuerpo?",
+    "respuesta": "Las dos formas principales son comiendo pescado contaminado y respirando el vapor de mercurio en el trabajo. También pasa de la madre al bebé durante el embarazo.",
+    "fuente": "oms_mercurio_salud.pdf p. 1",
+    "tema": "salud",
+    "palabras_clave": [
+      "entra",
+      "respirar",
+      "vapor",
+      "comer",
+      "cuerpo"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 8,
+    "pregunta": "¿Qué síntomas da el mercurio?",
+    "respuesta": "Temblores, irritabilidad, problemas para dormir, pérdida de memoria, dolor de cabeza y cambios en la vista o la audición. Si se respiró mucho vapor de golpe puede haber daño en los pulmones, náuseas, vómitos, diarrea e irritación de los ojos. Médicos de Rurrenabaque también mencionan caída del cabello. Si tienes estos síntomas, ve al centro de salud.",
+    "fuente": "oms_mercurio_salud.pdf p. 1 + atsdr_toxfaqs_mercurio.pdf p. 1 + defensoria_convenio_minamata_bolivia.pdf p. 73",
+    "tema": "salud",
+    "palabras_clave": [
+      "síntomas",
+      "temblor",
+      "memoria",
+      "dolor de cabeza",
+      "señales"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 9,
+    "pregunta": "¿Quiénes corren más riesgo?",
+    "respuesta": "El bebé en el vientre de su madre, los niños pequeños y las mujeres en edad de tener hijos. También quienes comen mucho pescado (pesca de subsistencia) y quienes trabajan con mercurio.",
+    "fuente": "oms_mercurio_salud.pdf p. 1 + cincia_mercurio_loreto_peces.pdf p. 4",
+    "tema": "salud",
+    "palabras_clave": [
+      "riesgo",
+      "embarazada",
+      "niños",
+      "bebé",
+      "vulnerable"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 10,
+    "pregunta": "Estoy embarazada, ¿qué debo hacer?",
+    "respuesta": "El mercurio del pescado que come la madre puede dañar el cerebro del bebé. Elige pacú, tambaquí o paiche, y no comas blanquillo. Aléjate de los lugares donde se usa mercurio líquido. Si das pecho, los beneficios de la lactancia pueden ser mayores que el riesgo: consulta al centro de salud antes de dejar de amamantar.",
+    "fuente": "oms_mercurio_salud.pdf p. 1 + umsa_boletin_peces_beni.pdf p. 3 + atsdr_toxfaqs_mercurio.pdf p. 2",
+    "tema": "salud",
+    "palabras_clave": [
+      "embarazada",
+      "embarazo",
+      "gestante",
+      "bebé"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 11,
+    "pregunta": "¿Se puede curar la intoxicación por mercurio?",
+    "respuesta": "Solo un médico puede decidir el tratamiento. Algunos medicamentos que sacan el mercurio del cuerpo (terapia de quelación) son riesgosos y solo los indica un médico especialista. No uses remedios caseros. Si alguien tiene síntomas, llévalo al centro de salud.",
+    "fuente": "atsdr_resumen_salud_mercurio.pdf p. 6 + oit_oms_ficha_seguridad_mercurio.pdf",
+    "tema": "salud",
+    "palabras_clave": [
+      "curar",
+      "tratamiento",
+      "remedio",
+      "casero"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 12,
+    "pregunta": "¿Qué hago si alguien se intoxica con mercurio?",
+    "respuesta": "Si respiró vapor: sácalo al aire limpio, que descanse y llévalo al médico de inmediato. Si le cayó en la piel: quítale la ropa contaminada y lávale la piel con agua y jabón. Si le entró en los ojos: enjuágalos con mucha agua durante varios minutos, sin que se los frote. Si lo tragó: que se enjuague la boca y llévalo al médico. En todos los casos hay que ir al centro de salud. No le provoques el vómito y no le des líquidos si está inconsciente.",
+    "fuente": "oit_oms_ficha_seguridad_mercurio.pdf + manual_operacion_retorta_es.pdf (p. 13-14 del original)",
+    "tema": "salud",
+    "palabras_clave": [
+      "intoxicación",
+      "intoxicado",
+      "primeros auxilios",
+      "qué hago",
+      "emergencia",
+      "vapor",
+      "ojos",
+      "piel",
+      "tragó"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 13,
+    "pregunta": "¿Cómo sé si tengo mercurio en el cuerpo?",
+    "respuesta": "Con análisis que pide el médico. Para el mercurio del pescado se usa el cabello o la sangre; para el vapor de mercurio (quema de amalgama), la sangre o la orina. En el cabello, hasta 1-2 µg/g es normal; desde 2 µg/g hay que vigilar; desde 10 µg/g la exposición es alta y hay que actuar. Para embarazadas, la referencia de la OPS es 1 µg/g. En la cuenca del río Beni, el promedio en 2022-2023 fue 4 µg/g. Pregunta en tu centro de salud.",
+    "fuente": "atsdr_toxfaqs_mercurio.pdf p. 2 + umsa_metaanalisis_mercurio_beni.pdf p. 11-12",
+    "tema": "salud",
+    "palabras_clave": [
+      "análisis",
+      "cabello",
+      "pelo",
+      "examen"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 14,
+    "pregunta": "¿El mercurio daña a los niños que no comen pescado?",
+    "respuesta": "Sí puede: respirar vapor de mercurio daña los nervios, los pulmones y los riñones. Los niños y las embarazadas deben estar lejos de los lugares donde se usa mercurio líquido. Enseña a los niños a no jugar con líquidos brillantes y plateados.",
+    "fuente": "oms_mercurio_salud.pdf p. 1 + atsdr_toxfaqs_mercurio.pdf p. 2",
+    "tema": "salud",
+    "palabras_clave": [
+      "niños",
+      "jugar",
+      "vapor",
+      "relave"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 15,
+    "pregunta": "¿Qué es una retorta?",
+    "respuesta": "Es un equipo para recuperar el mercurio cuando se quema el oro amalgamado. La amalgama se calienta dentro de una vasija cerrada; el mercurio no sale al aire y se puede volver a usar. En Bolivia hay diseños propios de retorta de instituciones que apoyan a la minería.",
+    "fuente": "cedib_negocio_mercurio_bolivia.pdf p. 10, 82 y 84 + libro_manejo_ambiental_pequena_mineria.pdf p. 72",
+    "tema": "mineria",
+    "palabras_clave": [
+      "retorta",
+      "qué es",
+      "recuperar",
+      "amalgama"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 16,
+    "pregunta": "¿Cómo uso una retorta?",
+    "respuesta": "1) Pon un papel o una capa fina de cal en el fondo, para que el oro no se pegue. 2) Mete la amalgama y cierra bien la retorta, sin fugas. 3) El tubo de salida debe terminar en un recipiente con agua, donde cae el mercurio. 4) Calienta con llama moderada y de todos los lados, también el tubo. 5) Apaga y deja que la retorta se enfríe sola en un lugar bien ventilado; nunca le eches agua encima. Cuida que el agua del recipiente no suba al crisol caliente: puede explotar. 6) Abre la retorta, saca el oro y guarda el mercurio en un frasco cerrado con un poco de agua encima.",
+    "fuente": "libro_manejo_ambiental_pequena_mineria.pdf p. 72-73 + libro_pequena_mineria_tecnicas_procesos.pdf p. 43 + manual_operacion_retorta_es.pdf (p. 10 del original)",
+    "tema": "mineria",
+    "palabras_clave": [
+      "usar",
+      "cómo",
+      "pasos",
+      "retorta",
+      "quemar"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 17,
+    "pregunta": "¿Por qué no debo quemar la amalgama sin retorta?",
+    "respuesta": "Porque el mercurio se vuelve vapor: lo respiras tú, tu familia y tus vecinos. La mayor parte del vapor cae cerca del lugar de la quema y contamina el suelo, los alimentos y los animales; con la lluvia llega a los ríos. Con una retorta bien cerrada casi no se pierde mercurio y se puede volver a usar. Además, la ley exige quemar la amalgama en retorta.",
+    "fuente": "libro_manejo_ambiental_pequena_mineria.pdf p. 24 + libro_pequena_mineria_tecnicas_procesos.pdf p. 43 + cedib_negocio_mercurio_bolivia.pdf p. 56",
+    "tema": "mineria",
+    "palabras_clave": [
+      "quemar",
+      "aire libre",
+      "soplete",
+      "vapor"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 18,
+    "pregunta": "¿Puedo quemar la amalgama en mi casa o en la cocina?",
+    "respuesta": "Nunca. Muchas veces la amalgama se quema dentro de la casa o en la cocina, y así el vapor de mercurio contamina el lugar donde vive la familia. El mercurio que cae al piso sigue evaporándose a temperatura ambiente y es un peligro permanente para la salud.",
+    "fuente": "libro_manejo_ambiental_pequena_mineria.pdf p. 24 y 28",
+    "tema": "mineria",
+    "palabras_clave": [
+      "casa",
+      "cocina",
+      "ollas",
+      "quemar adentro"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 19,
+    "pregunta": "¿Dónde consigo una retorta?",
+    "respuesta": "Pregunta en tu cooperativa minera o en la Secretaría de Minería de tu Gobernación: tienen programas que enseñan a usar la retorta.",
+    "fuente": "defensoria_convenio_minamata_bolivia.pdf p. 84",
+    "tema": "mineria",
+    "palabras_clave": [
+      "conseguir",
+      "comprar",
+      "fabricar",
+      "retorta"
+    ],
+    "verificado": "parcial"
+  },
+  {
+    "id": 20,
+    "pregunta": "¿Hay formas de sacar oro sin mercurio?",
+    "respuesta": "Sí. Los métodos por gravedad separan el oro sin mercurio: canaletas, mesas concentradoras, centrífugas y jigs. La OMS pide promover técnicas sin mercurio.",
+    "fuente": "libro_pequena_mineria_tecnicas_procesos.pdf p. 5 del PDF (p. 229 del libro) + oms_mercurio_salud.pdf p. 1",
+    "tema": "mineria",
+    "palabras_clave": [
+      "sin mercurio",
+      "alternativa",
+      "gravimétrico",
+      "mesa",
+      "canaleta"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 21,
+    "pregunta": "¿Qué hago si se derrama mercurio en mi casa?",
+    "respuesta": "Saca a los niños y animales, abre las ventanas y cierra las puertas hacia el resto de la casa. Nunca uses escoba ni aspiradora y nunca lo eches al desagüe. Con guantes, junta las gotas despacio con un cartón y recógelas con un gotero o cinta adhesiva; guárdalas en una bolsa o frasco bien cerrado. Ventila el lugar al menos 24 horas. Si te sientes mal, busca atención médica.",
+    "fuente": "epa_derrame_mercurio_casa.pdf + libro_manejo_ambiental_pequena_mineria.pdf p. 28",
+    "tema": "salud",
+    "palabras_clave": [
+      "derrame",
+      "derramar",
+      "gotas",
+      "limpiar",
+      "casa"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 22,
+    "pregunta": "¿Qué es un relave o cola minera?",
+    "respuesta": "Es el material que sobra después de procesar el mineral para sacar el oro. Muchas veces todavía tiene oro y mercurio. Una parte se echa al río; otra se amontona sin control y, cuando llueve, puede escurrirse.",
+    "fuente": "guia_oro42_colas_con_mercurio.pdf p. 1",
+    "tema": "agua",
+    "palabras_clave": [
+      "relave",
+      "cola",
+      "pasivo",
+      "qué es",
+      "desecho"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 23,
+    "pregunta": "¿Cómo reconozco un relave con mercurio?",
+    "respuesta": "Suele estar cerca de donde se lava el oro: montones de arena o barro gris y pozas de agua quieta, a veces con gotitas plateadas. Si ves gotas plateadas, no las toques y repórtalo en la app.",
+    "fuente": "Equipo Gold4Good",
+    "tema": "agua",
+    "palabras_clave": [
+      "reconocer",
+      "identificar",
+      "gotas plateadas",
+      "señales"
+    ],
+    "verificado": "propio"
+  },
+  {
+    "id": 24,
+    "pregunta": "¿Es peligroso tocar un relave?",
+    "respuesta": "El mercurio también puede entrar por la piel, y algunas formas de mercurio son corrosivas para la piel y los ojos. No dejes que los niños jueguen ahí y lávate las manos después.",
+    "fuente": "oms_mercurio_salud.pdf p. 1",
+    "tema": "agua",
+    "palabras_clave": [
+      "tocar",
+      "jugar",
+      "animales",
+      "piel"
+    ],
+    "verificado": "parcial"
+  },
+  {
+    "id": 25,
+    "pregunta": "¿Puedo tomar agua del río cerca de una mina?",
+    "respuesta": "El mercurio puede entrar al cuerpo con el agua contaminada, y solo un análisis dice si el agua lo tiene. Hervirla no lo quita. Si vives cerca de minas o relaves, pregunta a las autoridades de salud qué agua es segura para tomar.",
+    "fuente": "atsdr_toxfaqs_mercurio.pdf p. 1-2 + cdc_hervir_agua.pdf",
+    "tema": "agua",
+    "palabras_clave": [
+      "tomar",
+      "agua",
+      "río",
+      "beber"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 26,
+    "pregunta": "¿Hervir el agua quita el mercurio?",
+    "respuesta": "No. Hervir el agua mata los virus, bacterias y parásitos, pero no elimina las sustancias químicas como el mercurio. Pregunta a las autoridades de salud qué agua es segura.",
+    "fuente": "cdc_hervir_agua.pdf",
+    "tema": "agua",
+    "palabras_clave": [
+      "hervir",
+      "agua",
+      "quitar",
+      "filtrar"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 27,
+    "pregunta": "¿Cómo llega el mercurio de la mina al río?",
+    "respuesta": "Muchas operaciones echan sus colas (relaves) al río, y las que se amontonan sin control se escurren cuando llueve. En el agua, unas bacterias convierten el mercurio en metilmercurio, que se acumula en los peces.",
+    "fuente": "guia_oro42_colas_con_mercurio.pdf p. 1 + oms_mercurio_salud.pdf p. 1",
+    "tema": "agua",
+    "palabras_clave": [
+      "llega",
+      "río",
+      "contaminación",
+      "metilmercurio"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 28,
+    "pregunta": "¿Cómo reporto un relave con mercurio?",
+    "respuesta": "Con nuestra app: toma una foto, responde 5 preguntas y envía. Funciona sin internet y puedes reportar sin dar tu nombre, o por medio de un aliado local.",
+    "fuente": "Gold4Good",
+    "tema": "mineria",
+    "palabras_clave": [
+      "reportar",
+      "denunciar",
+      "app",
+      "relave"
+    ],
+    "verificado": "propio"
+  },
+  {
+    "id": 29,
+    "pregunta": "¿Es seguro reportar? ¿Sabrán quién soy?",
+    "respuesta": "Puedes reportar de forma anónima: la app no pide tu nombre ni tu carnet. También puedes pedir a un aliado local que reporte por ti.",
+    "fuente": "Gold4Good",
+    "tema": "mineria",
+    "palabras_clave": [
+      "anónimo",
+      "seguro",
+      "nombre",
+      "carnet"
+    ],
+    "verificado": "propio"
+  },
+  {
+    "id": 30,
+    "pregunta": "¿Qué institución se encarga de los pasivos mineros?",
+    "respuesta": "La AJAM controla las concesiones mineras. El Ministerio de Medio Ambiente y Agua (MMAyA) y las Gobernaciones ven el daño ambiental. En áreas protegidas también interviene el SERNAP.",
+    "fuente": "Gold4Good + defensoria_convenio_minamata_bolivia.pdf",
+    "tema": "mineria",
+    "palabras_clave": [
+      "institución",
+      "autoridad",
+      "AJAM",
+      "MMAyA",
+      "quién"
+    ],
+    "verificado": "propio"
+  },
+  {
+    "id": 31,
+    "pregunta": "¿Bolivia tiene leyes sobre el mercurio?",
+    "respuesta": "Sí. Bolivia ratificó el Convenio de Minamata sobre el mercurio con la Ley 759 del 18 de noviembre de 2015. También rigen la Ley 1333 de Medio Ambiente (1992) y la Ley 535 de Minería y Metalurgia. El Reglamento Ambiental para Actividades Mineras (DS 24782, art. 27) permite usar mercurio solo con equipos para recuperarlo y exige quemar la amalgama en retorta.",
+    "fuente": "defensoria_convenio_minamata_bolivia.pdf p. 14, 28 y 93 + cedib_negocio_mercurio_bolivia.pdf p. 56",
+    "tema": "mineria",
+    "palabras_clave": [
+      "ley",
+      "norma",
+      "Minamata",
+      "legal"
+    ],
+    "verificado": "sí"
+  },
+  {
+    "id": 32,
+    "pregunta": "¿Hay mercurio en el río Beni?",
+    "respuesta": "Sí. Los estudios en la cuenca del río Beni (1995-2024) encontraron mercurio en el agua, los sedimentos y las personas. Cerca de Rurrenabaque y de Riberalta el agua llegó a pasar el límite boliviano de 1000 ng/l (Reglamento en Materia de Contaminación Hídrica). En el cabello de la gente, el promedio de 2022-2023 fue 4 µg/g, el doble del nivel de vigilancia. En época de lluvias hay más mercurio, y se relaciona con la minería y la quema de bosques.",
+    "fuente": "umsa_metaanalisis_mercurio_beni.pdf p. 1, 3, 6 y 14",
+    "tema": "agua",
+    "palabras_clave": [
+      "río Beni",
+      "Rurrenabaque",
+      "Riberalta",
+      "Kaka",
+      "agua",
+      "sedimento",
+      "contaminación",
+      "mercurio en el río"
+    ],
+    "verificado": "sí"
+  }
+]

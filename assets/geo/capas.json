@@ -1,0 +1,93 @@
+{
+  "generado": "2026-11-25 19:56",
+  "fuente": "© OpenStreetMap contributors (ODbL) vía Overpass API",
+  "bbox": {
+    "sur": -15.85,
+    "oeste": -68.35,
+    "norte": -15.2,
+    "este": -67.55
+  },
+  "capas": [
+    {
+      "id": "rios",
+      "nombre": "Ríos principales",
+      "grupo": "Agua",
+      "uso": "Hacia dónde viaja el mercurio por el agua (peligro aguas abajo).",
+      "archivo": "assets/geo/rios.geojson",
+      "elementos": 92,
+      "kb": 131.9
+    },
+    {
+      "id": "quebradas",
+      "nombre": "Quebradas y arroyos",
+      "grupo": "Agua",
+      "uso": "Afluentes donde suelen operar dragas y lavaderos.",
+      "archivo": "assets/geo/quebradas.geojson",
+      "elementos": 174,
+      "kb": 80.4
+    },
+    {
+      "id": "cuerpos_agua",
+      "nombre": "Cuerpos de agua",
+      "grupo": "Agua",
+      "uso": "Cauces anchos, lagunas y pozas (sedimento donde se acumula Hg).",
+      "archivo": "assets/geo/cuerpos_agua.geojson",
+      "elementos": 141,
+      "kb": 52.0
+    },
+    {
+      "id": "poblados",
+      "nombre": "Poblados y comunidades",
+      "grupo": "Exposición",
+      "uso": "Capa de exposición: personas que viven cerca del río.",
+      "archivo": "assets/geo/poblados.geojson",
+      "elementos": 261,
+      "kb": 43.9
+    },
+    {
+      "id": "escuelas_salud",
+      "nombre": "Escuelas y centros de salud",
+      "grupo": "Vulnerabilidad",
+      "uso": "Capa de vulnerabilidad: niños y atención de salud.",
+      "archivo": "assets/geo/escuelas_salud.geojson",
+      "elementos": 73,
+      "kb": 13.2
+    },
+    {
+      "id": "mineria_areas",
+      "nombre": "Áreas — Minería (OSM)",
+      "grupo": "Minería",
+      "uso": "Áreas y puntos mineros mapeados en OSM (incompleto: sumar Amazon Mining Watch).",
+      "archivo": "assets/geo/mineria_areas.geojson",
+      "elementos": 94,
+      "kb": 38.2
+    },
+    {
+      "id": "mineria_puntos",
+      "nombre": "Puntos — Minería (OSM)",
+      "grupo": "Minería",
+      "uso": "Áreas y puntos mineros mapeados en OSM (incompleto: sumar Amazon Mining Watch).",
+      "archivo": "assets/geo/mineria_puntos.geojson",
+      "elementos": 11,
+      "kb": 2.0
+    },
+    {
+      "id": "caminos",
+      "nombre": "Caminos principales",
+      "grupo": "Contexto",
+      "uso": "Acceso a comunidades y zonas de trabajo de campo.",
+      "archivo": "assets/geo/caminos.geojson",
+      "elementos": 141,
+      "kb": 63.4
+    },
+    {
+      "id": "zonas_demo",
+      "nombre": "Zonas de muestreo (demo app)",
+      "grupo": "Zonas de la app",
+      "uso": "Zonas demo que usa hoy la app; reemplazar por puntos de muestreo reales.",
+      "archivo": "assets/geo/zonas_demo.geojson",
+      "elementos": 3,
+      "kb": 0.7
+    }
+  ]
+}
