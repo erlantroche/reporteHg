@@ -2,27 +2,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
 import React, { useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import {
-  Button,
-  Card,
-  FeatureCard,
-  Footer,
-  IMAGES,
-  ImageStatCard,
-  PageHero,
-  SectionHeader,
-  StatBand,
-} from '../components/eco/ui';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FaqList } from '../components/eco/FaqList';
+import { Button, Footer, SectionTitle, Shade } from '../components/eco/ui';
 import { HgMap } from '../components/map/HgMap';
 import type { MapReport, MapZone } from '../components/map/mapBridge';
-import { Reveal, RevealProvider, useRevealScroll } from '../components/motion/Reveal';
-import { accent, ink, layout, line, palette, radius, riskTone, shadow, space, statusTone, surface, type } from '../constants/hg-theme';
+import { RiverArt } from '../components/RiverArt';
+import { FONT, ink, layout, line, palette, radius, riskTone, space, statusTone, surface, type } from '../constants/hg-theme';
 import { reportTypeLabel } from '../constants/reportTypes';
 import { useReports } from '../context/ReportsContext';
-import { DEFAULT_VISIBLE_LAYERS, featureCount, GEO_ATTRIBUTION, GEO_LAYER_DEFS, GeoLayerDef, MAP_GEO_LAYERS } from '../data/geoLayers';
 import { faqById } from '../data/faq';
+import { DEFAULT_VISIBLE_LAYERS, featureCount, GEO_LAYER_DEFS, GeoLayerDef, MAP_GEO_LAYERS } from '../data/geoLayers';
 import { CitizenReport, INITIAL_RISK_ZONES, RiskLevel, RiskZone } from '../data/mocks';
 import {
   buildRiskGrid,
@@ -40,45 +30,38 @@ type LayerMode = MapLayer;
 type IconName = keyof typeof Ionicons.glyphMap;
 type Scrollable = { scrollTo: (o: { y: number; animated?: boolean }) => void } | null;
 
-const WIDE = 1024;
 
-const RISK_META: Record<RiskLevel, { label: string; icon: IconName; hint: string }> = {
-  alto: { label: 'Alto', icon: 'warning', hint: 'Zona prioritaria: sigue los avisos locales sobre uso del agua y consumo de pescado.' },
-  medio: { label: 'Medio', icon: 'alert-circle', hint: 'Precaución: confirma con el monitoreo local antes del uso continuo del agua.' },
-  bajo: { label: 'Bajo', icon: 'checkmark-circle', hint: 'Sin señales fuertes por ahora. Mantén la vigilancia y reporta cualquier cambio.' },
+const RISK_LABEL: Record<RiskLevel, string> = { alto: 'Riesgo alto', medio: 'Riesgo medio', bajo: 'Riesgo bajo' };
+const RISK_HINT: Record<RiskLevel, string> = {
+  alto: 'Sigue los avisos locales sobre el agua y prefiere pacú, tambaquí o paiche antes que peces grandes que cazan a otros.',
+  medio: 'Consulta el monitoreo local antes de usar el agua todos los días y elige con cuidado el pescado.',
+  bajo: 'Sin señales fuertes por ahora. Si ves algo raro en el río, repórtalo.',
 };
 
-const LAYERS: Record<LayerMode, { label: string; icon: IconName; description: string }> = {
-  peligro: { label: 'Peligro', icon: 'flask-outline', description: `Probabilidad de que el mercurio supere ${HG_THRESHOLD_MG_KG} mg/kg en cada cuadro.` },
-  riesgo: { label: 'Riesgo', icon: 'pulse-outline', description: 'Dónde el mercurio puede dañar a personas: peligro × exposición × vulnerabilidad.' },
-  incertidumbre: { label: 'Incertidumbre', icon: 'help-circle-outline', description: 'Más gris = menos seguro. Crece lejos de los puntos con muestras.' },
+const LAYERS: Record<LayerMode, { label: string; description: string }> = {
+  riesgo: { label: 'Riesgo', description: 'Dónde el mercurio puede dañar a personas: se combina cuánto mercurio hay, quién vive cerca y quién es más vulnerable.' },
+  peligro: { label: 'Mercurio', description: `Probabilidad de que el mercurio supere ${HG_THRESHOLD_MG_KG} mg/kg en cada cuadro del mapa.` },
+  incertidumbre: { label: 'Confianza', description: 'Qué tan seguros estamos. Más gris significa que faltan muestras cerca.' },
 };
+const LAYER_ORDER: LayerMode[] = ['riesgo', 'peligro', 'incertidumbre'];
+const UNCERTAIN = '#8B8F87';
 
-const LAYER_ORDER: LayerMode[] = ['peligro', 'riesgo', 'incertidumbre'];
-const LEVEL_ORDER: RiskLevel[] = ['alto', 'medio', 'bajo'];
-const UNCERTAIN = '#8B96AA';
-
-const HOW_IT_WORKS: { icon: IconName; title: string; text: string }[] = [
-  { icon: 'flask-outline', title: 'Peligro', text: 'Interpolamos las muestras: lo que está cerca se parece más que lo que está lejos.' },
-  { icon: 'people-outline', title: 'Exposición', text: 'Poblados, tomas de agua y zonas de pesca cerca de cada cuadro.' },
-  { icon: 'body-outline', title: 'Vulnerabilidad', text: 'Cuántos niños hay y cuánto pescado se consume en la zona.' },
-  { icon: 'help-buoy-outline', title: 'Incertidumbre', text: 'Mostramos con transparencia dónde faltan datos.' },
-  { icon: 'megaphone-outline', title: 'Avisos ciudadanos', text: 'Dragas, agua turbia, quemas o peces muertos, con foto y GPS.' },
-  { icon: 'cloud-offline-outline', title: 'Sin internet', text: 'Todo se guarda en el celular y se envía solo cuando hay señal.' },
+const JOURNEY: { title: string; text: string; faq: number }[] = [
+  { title: 'La mina', text: 'Al quemar la amalgama sin retorta, el mercurio se vuelve vapor y cae cerca: en el suelo, las casas y el agua.', faq: 17 },
+  { title: 'El río', text: 'Las colas mineras se echan al río o se escurren con la lluvia. En época de lluvias baja más mercurio.', faq: 27 },
+  { title: 'Los peces', text: 'En el agua, unas bacterias lo convierten en metilmercurio. Se acumula más en los peces grandes que cazan a otros.', faq: 2 },
+  { title: 'Las personas', text: 'Llega a nosotros al comer ese pescado. Los bebés en el vientre y los niños pequeños son los más afectados.', faq: 9 },
 ];
 
-const confidenceLabel = (u: number) => (u <= 0.2 ? 'Confianza alta' : u <= 0.35 ? 'Confianza media' : 'Confianza baja');
+const confidenceLabel = (u: number) => (u <= 0.2 ? 'alta' : u <= 0.35 ? 'media' : 'baja');
 
 export default function MapScreen() {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const wide = width >= WIDE;
-  /** Mapa y panel lado a lado solo en pantallas anchas; si no, uno debajo del otro. */
+  const { width, height } = useWindowDimensions();
+  const wide = width >= 1024;
   const sideBySide = width >= 1280;
-  const reveal = useRevealScroll();
   const scrollRef = useRef<Scrollable>(null);
   const mapY = useRef(0);
-  const containerY = useRef(0);
 
   const { reports } = useReports();
   const location = useCurrentLocation();
@@ -92,17 +75,11 @@ export default function MapScreen() {
   const [visibleLayers, setVisibleLayers] = useState<string[]>(DEFAULT_VISIBLE_LAYERS);
 
   const toggleLayer = (id: string) => setVisibleLayers((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const askAssistant = (faqId: number) => router.navigate({ pathname: '/chat', params: { faq: String(faqId) } });
+  const scrollToMap = () => scrollRef.current?.scrollTo({ y: Math.max(0, mapY.current - 8), animated: true });
 
   const cells = useMemo(() => buildRiskGrid(INITIAL_RISK_ZONES, layer), [layer]);
   const bounds = useMemo(() => zonesBounds(INITIAL_RISK_ZONES), []);
-  const counts = useMemo(
-    () => INITIAL_RISK_ZONES.reduce<Record<RiskLevel, number>>((acc, z) => ({ ...acc, [z.riskLevel]: acc[z.riskLevel] + 1 }), { alto: 0, medio: 0, bajo: 0 }),
-    []
-  );
-  const geoCount = (id: string) => {
-    const def = GEO_LAYER_DEFS.find((d) => d.id === id);
-    return def ? featureCount(def) : 0;
-  };
 
   const zoneColor = (zone: RiskZone) => {
     if (layer === 'riesgo') return riskTone[zone.riskLevel].solid;
@@ -133,13 +110,11 @@ export default function MapScreen() {
             lng: Number(r.longitude),
             color: statusTone[r.status === 'sincronizado' ? 'sincronizado' : 'pendiente'].solid,
             title: reportTypeLabel(r),
-            subtitle: `${r.createdAt} · ${r.status === 'sincronizado' ? 'Sincronizado' : 'Pendiente'}`,
+            subtitle: `${r.createdAt}, ${r.status === 'sincronizado' ? 'enviado' : 'pendiente de envío'}`,
           }))
         : [],
     [reports, showReports]
   );
-
-  const scrollToMap = () => scrollRef.current?.scrollTo({ y: Math.max(0, containerY.current + mapY.current - 12), animated: true });
 
   const selectZone = (zone: RiskZone) => {
     setSelected(zone);
@@ -149,23 +124,67 @@ export default function MapScreen() {
     scrollToMap();
   };
 
-  const askAssistant = (faqId: number) => router.navigate({ pathname: '/chat', params: { faq: String(faqId) } });
-
   const locateMe = async () => {
     const fix = await location.request();
     if (fix) setFocus({ lat: fix.lat, lng: fix.lng, zoom: 14, key: Date.now() });
   };
 
-  const meta = RISK_META[selected.riskLevel];
   const tone = riskTone[selected.riskLevel];
   const low = Math.max(0, selected.estimatedHgMgKg * (1 - selected.uncertainty));
   const high = selected.estimatedHgMgKg * (1 + selected.uncertainty);
   const prob = probabilityAboveThreshold(selected.estimatedHgMgKg, selected.uncertainty);
+  const heroHeight = wide ? Math.min(760, Math.max(600, height - 80)) : Math.max(560, Math.min(height - 120, 680));
 
   /* ---------------- Bloques ---------------- */
 
-  const mapCard = (
-    <View style={[styles.mapCard, shadow.float, { height: wide ? 600 : 440 }]}>
+  const hero = (
+    <View style={[styles.hero, { height: heroHeight }]}>
+      <RiverArt style={StyleSheet.absoluteFill} compact={!wide} />
+      {wide ? <Shade direction="right" max={0.9} style={styles.shadeLeft} /> : null}
+      <Shade direction="up" max={0.96} style={[styles.shadeBottom, { height: wide ? '50%' : '65%' }]} />
+
+      <View style={[styles.heroInner, wide && styles.heroInnerWide]}>
+        <View style={[styles.heroText, wide && styles.heroTextWide]}>
+          <Text style={[styles.heroTitle, wide && styles.heroTitleWide]}>El mercurio viaja con el río.</Text>
+          <Text style={[styles.heroLead, wide && styles.heroLeadWide]}>
+            Estos son el Kaka, el Tipuani, el Mapiri y el Coroico. Cada cuadrito es un sitio minero y los puntos
+            plateados muestran hacia dónde baja el mercurio. Mira el riesgo en tu zona y avisa lo que ves, aunque no
+            tengas señal.
+          </Text>
+          <View style={styles.heroActions}>
+            <Button label="Ver mi zona en el mapa" icon="map" variant="light" onPress={scrollToMap} />
+            <Button label="Reportar algo" icon="megaphone-outline" variant="ghostLight" onPress={() => router.navigate('/report')} />
+          </View>
+        </View>
+        <View style={[styles.heroLegend, wide && styles.heroLegendWide]}>
+          <LegendMark kind="mine" label="Sitio minero" />
+          <LegendMark kind="mercury" label="Mercurio bajando (ilustrativo)" />
+          <LegendMark kind="town" label="Poblado" />
+        </View>
+      </View>
+    </View>
+  );
+
+  const journey = (
+    <View style={[styles.band, styles.bandArena]}>
+      <View style={[styles.container, wide && styles.containerWide]}>
+        <SectionTitle title="Cómo llega el mercurio a tu mesa" lead="Es un recorrido de cuatro pasos. Cortar cualquiera de ellos protege a tu familia." />
+        <View style={[styles.journey, wide && styles.journeyTwo, sideBySide && styles.journeyWide]}>
+          {JOURNEY.map((step, i) => (
+            <Pressable key={step.title} onPress={() => askAssistant(step.faq)} style={({ pressed }) => [styles.step, wide && styles.stepTwo, sideBySide && styles.stepWide, pressed && styles.pressed]}>
+              <Text style={styles.stepNumber}>{i + 1}</Text>
+              <Text style={styles.stepTitle}>{step.title}</Text>
+              <Text style={styles.stepText}>{step.text}</Text>
+              <Text style={styles.stepLink}>Saber más</Text>
+            </Pressable>
+          ))}
+        </View>
+      </View>
+    </View>
+  );
+
+  const mapPanel = (
+    <View style={[styles.mapFrame, { height: wide ? 620 : 460 }]}>
       <HgMap
         center={DEFAULT_CENTER}
         zoom={11}
@@ -189,397 +208,259 @@ export default function MapScreen() {
         style={styles.map}
       />
       <View style={styles.mapControls} pointerEvents="box-none">
-        <MapButton icon={location.status === 'loading' ? 'hourglass-outline' : 'locate'} label="Mi ubicación" onPress={locateMe} active={!!location.fix} />
-        <MapButton icon="scan-outline" label="Ver zonas" onPress={() => setFitKey((k) => k + 1)} />
+        <MapButton icon={location.status === 'loading' ? 'hourglass-outline' : 'locate'} label="Dónde estoy" onPress={locateMe} active={!!location.fix} />
+        <MapButton icon="scan-outline" label="Ver todas las zonas" onPress={() => setFitKey((k) => k + 1)} />
         <MapButton icon={showReports ? 'flag' : 'flag-outline'} label={`Avisos (${reports.length})`} onPress={() => setShowReports((v) => !v)} active={showReports} />
-      </View>
-      <View style={styles.legendOverlay} pointerEvents="none">
-        <Legend layer={layer} showReports={showReports} />
       </View>
       {location.status === 'denied' ? (
         <View style={styles.mapToast} pointerEvents="none">
-          <Text style={styles.mapToastText}>Permiso de ubicación denegado</Text>
+          <Text style={styles.mapToastText}>No diste permiso de ubicación</Text>
         </View>
       ) : null}
     </View>
   );
 
-  const layerPills = (
-    <View style={styles.filterRow}>
-      {LAYER_ORDER.map((item) => {
-        const active = layer === item;
-        return (
-          <Pressable
-            key={item}
-            onPress={() => setLayer(item)}
-            style={({ pressed }) => [styles.filterPill, active && styles.filterPillActive, pressed && !active && styles.pressed]}
-            accessibilityRole="button"
-            accessibilityState={{ selected: active }}
-          >
-            <Ionicons name={LAYERS[item].icon} size={15} color={active ? ink.onSolid : accent.primary} />
-            <Text style={[styles.filterText, active && styles.filterTextActive]} numberOfLines={1}>
-              {LAYERS[item].label}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-
-  const detailCard = (
-    <Card style={[styles.detail, { borderColor: tone.border }]}>
+  const detail = (
+    <View style={[styles.detail, sideBySide && styles.detailSide]}>
       {selectedReport ? (
         <View style={styles.reportBox}>
-          <View style={styles.rowBetween}>
-            <Text style={styles.eyebrowSmall}>Aviso ciudadano</Text>
-            <Pressable onPress={() => setSelectedReport(null)} hitSlop={10}>
-              <Ionicons name="close" size={18} color={ink.secondary} />
-            </Pressable>
+          {selectedReport.photoUri ? (
+            <Image source={{ uri: selectedReport.photoUri }} style={styles.reportThumb} contentFit="cover" />
+          ) : null}
+          <View style={styles.flex}>
+            <Text style={styles.reportTitle}>Aviso: {reportTypeLabel(selectedReport)}</Text>
+            <Text style={styles.small} numberOfLines={2}>
+              {selectedReport.description}
+            </Text>
+            <Text style={styles.mono}>
+              {selectedReport.createdAt}, {Number(selectedReport.latitude).toFixed(4)}, {Number(selectedReport.longitude).toFixed(4)}
+            </Text>
           </View>
-          <View style={styles.row}>
-            {selectedReport.photoUri ? (
-              <Image source={{ uri: selectedReport.photoUri }} style={styles.reportThumb} contentFit="cover" />
-            ) : (
-              <View style={[styles.reportThumb, styles.reportThumbEmpty]}>
-                <Ionicons name="image-outline" size={20} color={ink.tertiary} />
-              </View>
-            )}
-            <View style={styles.flex}>
-              <Text style={styles.zoneName}>{reportTypeLabel(selectedReport)}</Text>
-              <Text style={styles.subtext} numberOfLines={2}>
-                {selectedReport.description}
-              </Text>
-              <Text style={styles.mono}>
-                {selectedReport.createdAt} · {Number(selectedReport.latitude).toFixed(4)}, {Number(selectedReport.longitude).toFixed(4)}
-              </Text>
-            </View>
-          </View>
+          <Pressable onPress={() => setSelectedReport(null)} hitSlop={10} accessibilityLabel="Cerrar aviso">
+            <Ionicons name="close" size={18} color={ink.secondary} />
+          </Pressable>
         </View>
       ) : null}
 
-      <View style={[styles.riskBanner, { backgroundColor: tone.soft }]}>
-        <View style={[styles.riskIcon, { backgroundColor: tone.solid }]}>
-          <Ionicons name={meta.icon} size={24} color={ink.onSolid} />
-        </View>
-        <View style={styles.flex}>
-          <Text style={[styles.riskLabel, { color: tone.text }]}>Riesgo {meta.label}</Text>
-          <Text style={styles.detailName}>{selected.name}</Text>
-          <Text style={styles.subtext}>{selected.riverOrArea}</Text>
-        </View>
+      <View style={[styles.riskHead, { borderLeftColor: tone.solid }]}>
+        <Text style={[styles.riskWord, { color: tone.text }]}>{RISK_LABEL[selected.riskLevel]}</Text>
+        <Text style={styles.zoneName}>{selected.name}</Text>
+        <Text style={styles.small}>{selected.riverOrArea}</Text>
       </View>
 
-      <View style={styles.metricsRow}>
-        <View style={[styles.metricBox, layer === 'peligro' && styles.metricBoxActive]}>
-          <Text style={styles.metricLabel}>Hg estimado</Text>
-          <View style={styles.metricValueRow}>
-            <Text style={styles.metricValue}>{selected.estimatedHgMgKg.toFixed(2)}</Text>
-            <Text style={styles.metricUnit}>mg/kg</Text>
-          </View>
-          <Text style={styles.metricFoot}>Valor interpolado</Text>
-        </View>
-        <View style={[styles.metricBox, layer === 'incertidumbre' && styles.metricBoxActive]}>
-          <Text style={styles.metricLabel}>Incertidumbre</Text>
-          <View style={styles.metricValueRow}>
-            <Text style={styles.metricValue}>±{Math.round(selected.uncertainty * 100)}</Text>
-            <Text style={styles.metricUnit}>%</Text>
-          </View>
-          <Text style={styles.metricFoot}>{confidenceLabel(selected.uncertainty)}</Text>
-        </View>
+      <View style={styles.figures}>
+        <Figure value={selected.estimatedHgMgKg.toFixed(2)} unit="mg/kg" label="Mercurio estimado" active={layer === 'peligro'} />
+        <Figure value={`±${Math.round(selected.uncertainty * 100)}`} unit="%" label={`Confianza ${confidenceLabel(selected.uncertainty)}`} active={layer === 'incertidumbre'} />
+        <Figure value={`${Math.round(prob * 100)}`} unit="%" label={`Prob. de pasar ${HG_THRESHOLD_MG_KG}`} />
       </View>
+      <Text style={styles.small}>
+        Rango probable: {low.toFixed(2)} a {high.toFixed(2)} mg/kg.
+      </Text>
 
-      <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Rango aproximado</Text>
-        <Text style={styles.infoValue}>
-          {low.toFixed(2)} – {high.toFixed(2)} mg/kg
-        </Text>
+      <Meter label="Personas expuestas" value={selected.exposureScore} />
+      <Meter label="Vulnerabilidad" value={selected.vulnerabilityScore} />
+
+      <Text style={styles.hint}>{RISK_HINT[selected.riskLevel]}</Text>
+
+      <View style={styles.faqLinks}>
+        {[1, 25].map((id) => {
+          const f = faqById(id);
+          return f ? (
+            <Pressable key={id} onPress={() => askAssistant(id)} style={({ pressed }) => [styles.faqLink, pressed && styles.pressed]}>
+              <Ionicons name="help-circle-outline" size={17} color={palette.rio} />
+              <Text style={styles.faqLinkText}>{f.pregunta}</Text>
+            </Pressable>
+          ) : null;
+        })}
       </View>
-      <View style={styles.infoRow}>
-        <Text style={styles.infoLabel}>Prob. de superar {HG_THRESHOLD_MG_KG} mg/kg</Text>
-        <Text style={styles.infoValue}>{Math.round(prob * 100)}%</Text>
-      </View>
-
-      <ScoreBar label="Exposición" value={selected.exposureScore} />
-      <ScoreBar label="Vulnerabilidad" value={selected.vulnerabilityScore} />
-      <ScoreBar label="Incertidumbre" value={selected.uncertainty} muted />
-
-      <View style={[styles.hintBox, { borderLeftColor: tone.solid }]}>
-        <Ionicons name="information-circle" size={16} color={tone.text} />
-        <Text style={styles.hintText}>{meta.hint}</Text>
-      </View>
-
-      {[1, 25].map((id) => {
-        const f = faqById(id);
-        return f ? (
-          <Pressable key={id} onPress={() => askAssistant(id)} style={({ pressed }) => [styles.faqLink, pressed && styles.pressed]}>
-            <Ionicons name="help-circle" size={16} color={accent.primary} />
-            <Text style={styles.faqLinkText}>{f.pregunta}</Text>
-            <Ionicons name="arrow-forward" size={14} color={accent.primary} />
-          </Pressable>
-        ) : null;
-      })}
-
-      <Button label="¿Viste algo aquí? Reportar" icon="megaphone-outline" variant="outline" onPress={() => router.navigate('/report')} />
-    </Card>
+      <Button label="Reportar algo en esta zona" icon="megaphone-outline" variant="outline" onPress={() => router.navigate('/report')} />
+    </View>
   );
 
-  const geoCard = (
-    <Card>
-      <View style={styles.rowBetween}>
-        <View style={styles.row}>
-          <Ionicons name="git-network-outline" size={18} color={accent.primary} />
-          <Text style={styles.cardTitle}>Capas del territorio</Text>
-        </View>
-        <View style={styles.qgisTag}>
-          <Text style={styles.qgisTagText}>QGIS</Text>
-        </View>
-      </View>
-      <View style={styles.geoChips}>
-        {GEO_LAYER_DEFS.map((def, i) => (
-          <Reveal key={def.id} from="scale" delay={i * 60}>
-            <GeoChip def={def} active={visibleLayers.includes(def.id)} onPress={() => toggleLayer(def.id)} />
-          </Reveal>
+  const layersList = (
+    <View style={styles.layersBox}>
+      <Text style={styles.layersTitle}>Qué se ve en el mapa</Text>
+      <View style={[styles.layersGrid, wide && styles.layersGridWide]}>
+        {GEO_LAYER_DEFS.map((def) => (
+          <LayerToggle key={def.id} def={def} active={visibleLayers.includes(def.id)} onPress={() => toggleLayer(def.id)} />
         ))}
       </View>
-      <Text style={styles.footnote}>{GEO_ATTRIBUTION}. Toca un río, poblado o área minera para ver su nombre.</Text>
-    </Card>
+      <Text style={styles.footnote}>Capas preparadas en QGIS con datos de OpenStreetMap. Toca un río, un poblado o un área minera para ver su nombre.</Text>
+    </View>
   );
 
-  const zonesList = (
-    <View style={styles.zonesGrid}>
-      {INITIAL_RISK_ZONES.map((zone, i) => {
-        const isSelected = selected.id === zone.id;
-        const t = riskTone[zone.riskLevel];
-        return (
-          <Reveal key={zone.id} delay={i * 120} style={wide ? styles.zoneCol : undefined}>
-            <Pressable
-              onPress={() => selectZone(zone)}
-              style={({ pressed }) => [styles.zoneCard, shadow.card, isSelected && { borderColor: accent.primary, borderWidth: 2 }, pressed && styles.pressed]}
-            >
-              <View style={styles.rowBetween}>
-                <View style={[styles.zoneIndex, { backgroundColor: zoneColor(zone) }]}>
-                  <Text style={styles.zoneIndexText}>{i + 1}</Text>
+  const mapSection = (
+    <View
+      style={[styles.band, styles.bandWhite]}
+      onLayout={(e) => {
+        mapY.current = e.nativeEvent.layout.y;
+      }}
+    >
+      <View style={[styles.container, wide && styles.containerWide]}>
+        <SectionTitle title="Mapa de riesgo" lead={LAYERS[layer].description} />
+        <View style={styles.tabs} accessibilityRole="tablist">
+          {LAYER_ORDER.map((item) => {
+            const active = layer === item;
+            return (
+              <Pressable key={item} onPress={() => setLayer(item)} style={[styles.tab, active && styles.tabActive]} accessibilityRole="tab" accessibilityState={{ selected: active }}>
+                <Text style={[styles.tabText, active && styles.tabTextActive]}>{LAYERS[item].label}</Text>
+              </Pressable>
+            );
+          })}
+          <View style={styles.tabLegend}>
+            <Legend layer={layer} />
+          </View>
+        </View>
+
+        {sideBySide ? (
+          <View style={styles.explorerRow}>
+            <View style={styles.explorerMap}>{mapPanel}</View>
+            {detail}
+          </View>
+        ) : (
+          <>
+            {mapPanel}
+            {detail}
+          </>
+        )}
+        {layersList}
+      </View>
+    </View>
+  );
+
+  const zonesSection = (
+    <View style={[styles.band, styles.bandArena]}>
+      <View style={[styles.container, wide && styles.containerWide]}>
+        <SectionTitle title="Tramos vigilados" lead="Toca un tramo para verlo en el mapa." />
+        <View style={styles.table}>
+          {wide ? (
+            <View style={[styles.row, styles.rowHead]}>
+              <Text style={[styles.cellHead, styles.cellName]}>Tramo</Text>
+              <Text style={[styles.cellHead, styles.cellNum]}>Mercurio</Text>
+              <Text style={[styles.cellHead, styles.cellNum]}>Confianza</Text>
+              <Text style={[styles.cellHead, styles.cellRisk]}>Nivel</Text>
+            </View>
+          ) : null}
+          {INITIAL_RISK_ZONES.map((zone, i) => {
+            const t = riskTone[zone.riskLevel];
+            const isSel = zone.id === selected.id;
+            return (
+              <Pressable key={zone.id} onPress={() => selectZone(zone)} style={({ pressed }) => [styles.row, !wide && styles.rowStack, isSel && styles.rowSelected, pressed && styles.pressed]}>
+                <View style={[styles.cellName, styles.nameCell]}>
+                  <View style={[styles.zoneDot, { backgroundColor: zoneColor(zone) }]}>
+                    <Text style={styles.zoneDotText}>{i + 1}</Text>
+                  </View>
+                  <View style={styles.flex}>
+                    <Text style={styles.rowTitle}>{zone.name}</Text>
+                    <Text style={styles.small}>{zone.riverOrArea}</Text>
+                  </View>
                 </View>
-                <View style={[styles.levelBadge, { backgroundColor: t.soft, borderColor: t.border }]}>
-                  <Text style={[styles.levelBadgeText, { color: t.text }]}>Riesgo {RISK_META[zone.riskLevel].label}</Text>
+                <Text style={[styles.cellNum, styles.rowNumber]}>
+                  {zone.estimatedHgMgKg.toFixed(2)} <Text style={styles.rowUnit}>mg/kg</Text>
+                </Text>
+                <Text style={[styles.cellNum, styles.rowNumber]}>±{Math.round(zone.uncertainty * 100)}%</Text>
+                <View style={styles.cellRisk}>
+                  <View style={[styles.levelChip, { backgroundColor: t.soft, borderColor: t.border }]}>
+                    <View style={[styles.levelDot, { backgroundColor: t.solid }]} />
+                    <Text style={[styles.levelText, { color: t.text }]}>{RISK_LABEL[zone.riskLevel]}</Text>
+                  </View>
                 </View>
-              </View>
-              <Text style={styles.zoneName}>{zone.name}</Text>
-              <Text style={styles.subtext}>{zone.riverOrArea}</Text>
-              <View style={styles.zoneStats}>
-                <View>
-                  <Text style={styles.zoneStatValue}>{zone.estimatedHgMgKg.toFixed(2)}</Text>
-                  <Text style={styles.zoneStatLabel}>mg/kg Hg</Text>
-                </View>
-                <View>
-                  <Text style={styles.zoneStatValue}>±{Math.round(zone.uncertainty * 100)}%</Text>
-                  <Text style={styles.zoneStatLabel}>incertidumbre</Text>
-                </View>
-                <View>
-                  <Text style={styles.zoneStatValue}>{Math.round(probabilityAboveThreshold(zone.estimatedHgMgKg, zone.uncertainty) * 100)}%</Text>
-                  <Text style={styles.zoneStatLabel}>prob. &gt; {HG_THRESHOLD_MG_KG}</Text>
-                </View>
-              </View>
-              <View style={styles.zoneLink}>
-                <Text style={styles.zoneLinkText}>Ver en el mapa</Text>
-                <Ionicons name="arrow-forward" size={14} color={accent.primary} />
-              </View>
-            </Pressable>
-          </Reveal>
-        );
-      })}
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+    </View>
+  );
+
+  const faqSection = (
+    <View style={[styles.band, styles.bandWhite]}>
+      <View style={[styles.container, wide && styles.containerWide, sideBySide && styles.faqRow]}>
+        <SectionTitle
+          style={sideBySide ? styles.faqIntro : undefined}
+          title="Preguntas frecuentes"
+          lead="Respuestas revisadas con estudios del río Beni, la OMS y guías de pequeña minería. Están guardadas en la app y se pueden leer sin señal."
+        />
+        <View style={styles.flex}>
+          <FaqList onAsk={(item) => askAssistant(item.id)} askLabel="Abrir en el asistente" />
+        </View>
+      </View>
+    </View>
+  );
+
+  const reportCall = (
+    <View style={[styles.band, styles.bandRio]}>
+      <View style={[styles.container, wide && styles.containerWide, sideBySide && styles.callRow]}>
+        <View style={styles.flex}>
+          <Text style={[styles.callTitle, wide && styles.callTitleWide]}>¿Viste una draga, agua turbia, una quema o peces muertos?</Text>
+          <Text style={styles.callLead}>Repórtalo en tres pasos. No pedimos tu nombre y funciona sin señal: se envía solo cuando vuelve el internet.</Text>
+        </View>
+        <Button label="Reportar ahora" icon="megaphone-outline" variant="light" onPress={() => router.navigate('/report')} />
+      </View>
     </View>
   );
 
   return (
-    <RevealProvider value={reveal.ctx}>
-      <Animated.ScrollView
-        ref={scrollRef as never}
-        style={styles.screen}
-        onScroll={reveal.onScroll}
-        scrollEventThrottle={16}
-      >
-        {/* HERO */}
-        <PageHero
-          source={IMAGES.heroForest}
-          eyebrow="Monitoreo ciudadano · Bolivia"
-          eyebrowIcon="leaf"
-          title="Cuidemos el río."
-          highlight="Cuidemos la vida."
-          subtitle="Mira el riesgo por mercurio en tu zona y avisa lo que ves, aunque no tengas internet."
-        >
-          <Button label="Explorar el mapa" icon="map" onPress={scrollToMap} />
-          <Button label="Reportar ahora" icon="megaphone" variant="lime" onPress={() => router.navigate('/report')} />
-        </PageHero>
-
-        <View
-          style={[styles.container, wide && styles.containerWide]}
-          onLayout={(e) => {
-            containerY.current = e.nativeEvent.layout.y;
-          }}
-        >
-          {/* MISIÓN */}
-          <View style={[styles.mission, wide && styles.missionWide]}>
-            <View style={[styles.missionText, wide && styles.flex]}>
-              <SectionHeader
-                align="left"
-                eyebrow="Nuestra misión"
-                icon="shield-checkmark"
-                title="Saber dónde está el mercurio,"
-                highlight="antes de que nos dañe."
-                description="Unimos estudios, imágenes satelitales, datos de campo y avisos de la comunidad para estimar el riesgo en cada tramo del río."
-              />
-              <View style={styles.checks}>
-                {[
-                  { icon: 'eye-off-outline' as IconName, title: 'Anónimo', text: 'No pedimos tu nombre' },
-                  { icon: 'cloud-offline-outline' as IconName, title: 'Sin internet', text: 'Se envía solo después' },
-                ].map((c, i) => (
-                  <Reveal key={c.title} delay={200 + i * 120} from="left" style={styles.check}>
-                    <View style={styles.checkIcon}>
-                      <Ionicons name={c.icon} size={18} color={accent.primary} />
-                    </View>
-                    <View>
-                      <Text style={styles.checkTitle}>{c.title}</Text>
-                      <Text style={styles.subtext}>{c.text}</Text>
-                    </View>
-                  </Reveal>
-                ))}
-              </View>
-            </View>
-            <Reveal from="scale" delay={150} style={wide ? styles.flex : undefined}>
-              <ImageStatCard source={IMAGES.forestCard} value={geoCount('poblados')} suffix="" label="poblados en la zona de estudio" height={wide ? 340 : 230} />
-            </Reveal>
-          </View>
-
-          {/* MAPA */}
-          <View
-            onLayout={(e) => {
-              mapY.current = e.nativeEvent.layout.y;
-            }}
-            style={styles.section}
-          >
-            <SectionHeader
-              eyebrow="Mapa de riesgo"
-              icon="map"
-              title="Explora tu zona"
-              highlight="capa por capa"
-              description={LAYERS[layer].description}
-            />
-            <Reveal delay={100}>{layerPills}</Reveal>
-            <View style={styles.countRow}>
-              {LEVEL_ORDER.map((level, i) => (
-                <Reveal key={level} from="scale" delay={150 + i * 80}>
-                  <View style={[styles.countPill, { backgroundColor: riskTone[level].soft, borderColor: riskTone[level].border }]}>
-                    <View style={[styles.dot, { backgroundColor: riskTone[level].solid }]} />
-                    <Text style={[styles.countText, { color: riskTone[level].text }]}>
-                      {counts[level]} zona{counts[level] === 1 ? '' : 's'} {RISK_META[level].label.toLowerCase()}
-                    </Text>
-                  </View>
-                </Reveal>
-              ))}
-            </View>
-
-            {sideBySide ? (
-              <View style={styles.explorerWide}>
-                <Reveal from="blur" duration={1100} style={styles.explorerMap}>
-                  {mapCard}
-                </Reveal>
-                <View style={styles.explorerSide}>
-                  <Reveal from="right" delay={150}>
-                    {detailCard}
-                  </Reveal>
-                </View>
-              </View>
-            ) : (
-              <>
-                <Reveal from="blur" duration={1100}>
-                  {mapCard}
-                </Reveal>
-                <Reveal>{detailCard}</Reveal>
-              </>
-            )}
-            <Reveal>{geoCard}</Reveal>
-          </View>
-
-          {/* ZONAS */}
-          <View style={styles.section}>
-            <SectionHeader eyebrow="Zonas monitoreadas" icon="location" title="Tramos del río" highlight="bajo vigilancia" />
-            {zonesList}
-          </View>
-
-          {/* CÓMO FUNCIONA */}
-          <View style={styles.section}>
-            <SectionHeader
-              eyebrow="Cómo se calcula"
-              icon="sparkles"
-              title="Un mapa de riesgo"
-              highlight="hecho con la comunidad"
-              description="Combinamos capas cuadro por cuadro y las clasificamos en bajo, medio y alto."
-            />
-            <View style={styles.featuresGrid}>
-              {HOW_IT_WORKS.map((f, i) => (
-                <Reveal key={f.title} delay={(i % 3) * 110} style={[styles.featureCell, wide && styles.featureCellWide]}>
-                  <FeatureCard icon={f.icon} title={f.title} text={f.text} />
-                </Reveal>
-              ))}
-            </View>
-          </View>
-
-          {/* PREGUNTAS FRECUENTES */}
-          <View style={styles.section}>
-            <SectionHeader
-              eyebrow="Preguntas frecuentes"
-              icon="help-circle"
-              title="Lo que más nos preguntan,"
-              highlight="con respuestas verificadas"
-              description="Basadas en estudios del río Beni, la OMS y guías para la pequeña minería. Están guardadas en la app y funcionan sin internet."
-            />
-            <View style={wide ? styles.faqWide : undefined}>
-              <FaqList onAsk={(item) => askAssistant(item.id)} />
-            </View>
-          </View>
-
-          {/* BANDA VERDE */}
-          <Reveal from="scale">
-            <StatBand
-              eyebrow="Súmate al monitoreo"
-              title="¿Viste algo en el río?"
-              subtitle="Cada aviso ayuda a proteger a las familias que viven, pescan y toman agua del río."
-              stats={[
-                { value: geoCount('rios') + geoCount('quebradas'), label: 'ríos y quebradas mapeados' },
-                { value: geoCount('mineria_areas') + geoCount('mineria_puntos'), label: 'sitios mineros' },
-                { value: geoCount('escuelas_salud'), label: 'escuelas y centros de salud' },
-                { value: reports.length, label: 'avisos ciudadanos' },
-              ]}
-            >
-              <Button label="Reportar ahora" icon="megaphone" variant="white" onPress={() => router.navigate('/report')} />
-              <Button label="Preguntar al asistente" icon="chatbubbles" variant="lime" onPress={() => router.navigate('/chat')} />
-            </StatBand>
-          </Reveal>
-        </View>
-
-        <Footer />
-      </Animated.ScrollView>
-    </RevealProvider>
+    <ScrollView ref={scrollRef as never} style={styles.screen}>
+      {hero}
+      {journey}
+      {mapSection}
+      {zonesSection}
+      {faqSection}
+      {reportCall}
+      <Footer />
+    </ScrollView>
   );
 }
 
 /* ---------------- Subcomponentes ---------------- */
 
+function LegendMark({ kind, label }: { kind: 'mine' | 'mercury' | 'town'; label: string }) {
+  return (
+    <View style={styles.legendMark}>
+      {kind === 'mine' ? <View style={styles.markMine} /> : kind === 'mercury' ? <View style={styles.markMercury} /> : <View style={styles.markTown} />}
+      <Text style={styles.legendMarkText}>{label}</Text>
+    </View>
+  );
+}
+
 function MapButton({ icon, label, onPress, active }: { icon: IconName; label: string; onPress: () => void; active?: boolean }) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.mapBtn, active && styles.mapBtnActive, pressed && styles.pressed]}
-      accessibilityRole="button"
-      accessibilityLabel={label}
-    >
-      <Ionicons name={icon} size={15} color={active ? ink.onSolid : accent.primary} />
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.mapBtn, active && styles.mapBtnActive, pressed && styles.pressed]} accessibilityRole="button" accessibilityLabel={label}>
+      <Ionicons name={icon} size={15} color={active ? palette.arena : palette.selva} />
       <Text style={[styles.mapBtnText, active && styles.mapBtnTextActive]}>{label}</Text>
     </Pressable>
   );
 }
 
-function GeoChip({ def, active, onPress }: { def: GeoLayerDef; active: boolean; onPress: () => void }) {
+function Figure({ value, unit, label, active }: { value: string; unit: string; label: string; active?: boolean }) {
+  return (
+    <View style={[styles.figure, active && styles.figureActive]}>
+      <Text style={styles.figureValue}>
+        {value}
+        <Text style={styles.figureUnit}> {unit}</Text>
+      </Text>
+      <Text style={styles.figureLabel}>{label}</Text>
+    </View>
+  );
+}
+
+function Meter({ label, value }: { label: string; value: number }) {
+  const v = Math.min(1, Math.max(0, value));
+  return (
+    <View style={styles.meter}>
+      <View style={styles.meterHead}>
+        <Text style={styles.meterLabel}>{label}</Text>
+        <Text style={styles.meterValue}>{Math.round(v * 100)}%</Text>
+      </View>
+      <View style={styles.meterTrack}>
+        <View style={[styles.meterFill, { width: `${Math.round(v * 100)}%` as const }]} />
+      </View>
+    </View>
+  );
+}
+
+function LayerToggle({ def, active, onPress }: { def: GeoLayerDef; active: boolean; onPress: () => void }) {
   const swatch =
     def.kind === 'line' ? (
       <View style={[styles.swLine, { backgroundColor: def.style.color }]} />
@@ -589,77 +470,47 @@ function GeoChip({ def, active, onPress }: { def: GeoLayerDef; active: boolean; 
       <View style={[styles.swPoly, { backgroundColor: def.style.fillColor ?? def.style.color, borderColor: def.style.color }]} />
     );
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [styles.geoChip, active && styles.geoChipActive, pressed && styles.pressed]}
-      accessibilityRole="switch"
-      accessibilityState={{ checked: active }}
-      accessibilityLabel={def.name}
-    >
-      <View style={[styles.swWrap, !active && styles.swOff]}>{swatch}</View>
-      <Text style={[styles.geoChipText, active && styles.geoChipTextActive]}>{def.short}</Text>
-      <Text style={styles.geoChipCount}>{featureCount(def)}</Text>
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.toggle, pressed && styles.pressed]} accessibilityRole="checkbox" accessibilityState={{ checked: active }} accessibilityLabel={def.name}>
+      <View style={[styles.checkbox, active && styles.checkboxOn]}>{active ? <Ionicons name="checkmark" size={13} color={palette.arena} /> : null}</View>
+      <View style={styles.swWrap}>{swatch}</View>
+      <Text style={[styles.toggleText, !active && styles.toggleTextOff]}>{def.name}</Text>
+      <Text style={styles.toggleCount}>{featureCount(def)}</Text>
     </Pressable>
   );
 }
 
-function ScoreBar({ label, value, muted }: { label: string; value: number; muted?: boolean }) {
-  const v = Math.min(1, Math.max(0, value));
-  return (
-    <View style={styles.scoreRow}>
-      <View style={styles.rowBetween}>
-        <Text style={styles.scoreLabel}>{label}</Text>
-        <Text style={styles.scoreValue}>{Math.round(v * 100)}%</Text>
+function Legend({ layer }: { layer: LayerMode }) {
+  if (layer === 'riesgo') {
+    return (
+      <View style={styles.legend}>
+        {(['bajo', 'medio', 'alto'] as RiskLevel[]).map((level) => (
+          <View key={level} style={styles.legendItem}>
+            <View style={[styles.legendSwatch, { backgroundColor: riskTone[level].solid }]} />
+            <Text style={styles.legendText}>{level === 'bajo' ? 'Bajo' : level === 'medio' ? 'Medio' : 'Alto'}</Text>
+          </View>
+        ))}
       </View>
-      <View style={styles.track}>
-        <View style={[styles.fill, { width: `${Math.round(v * 100)}%` as const, backgroundColor: muted ? UNCERTAIN : accent.primary }]} />
+    );
+  }
+  if (layer === 'peligro') {
+    return (
+      <View style={styles.legend}>
+        <Text style={styles.legendText}>0%</Text>
+        <View style={styles.scaleBar}>
+          {HAZARD_LEGEND.map((c) => (
+            <View key={c} style={[styles.scaleStep, { backgroundColor: c }]} />
+          ))}
+        </View>
+        <Text style={styles.legendText}>100%</Text>
       </View>
-    </View>
-  );
-}
-
-function Legend({ layer, showReports }: { layer: LayerMode; showReports: boolean }) {
+    );
+  }
   return (
     <View style={styles.legend}>
-      {layer === 'riesgo'
-        ? (['bajo', 'medio', 'alto'] as RiskLevel[]).map((level) => (
-            <View key={level} style={styles.legendItem}>
-              <View style={[styles.legendSwatch, { backgroundColor: riskTone[level].solid }]} />
-              <Text style={styles.legendText}>{RISK_META[level].label}</Text>
-            </View>
-          ))
-        : null}
-      {layer === 'peligro' ? (
-        <View style={styles.legendItem}>
-          <Text style={styles.legendText}>0%</Text>
-          <View style={styles.scaleBar}>
-            {HAZARD_LEGEND.map((c) => (
-              <View key={c} style={[styles.scaleStep, { backgroundColor: c }]} />
-            ))}
-          </View>
-          <Text style={styles.legendText}>100%</Text>
-        </View>
-      ) : null}
-      {layer === 'incertidumbre' ? (
-        <View style={styles.legendItem}>
-          <View style={[styles.legendSwatch, { backgroundColor: UNCERTAIN, opacity: 0.25 }]} />
-          <Text style={styles.legendText}>Seguro</Text>
-          <View style={[styles.legendSwatch, { backgroundColor: UNCERTAIN, opacity: 0.85 }]} />
-          <Text style={styles.legendText}>Incierto</Text>
-        </View>
-      ) : null}
-      {showReports ? (
-        <>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDiamond, { backgroundColor: statusTone.pendiente.solid }]} />
-            <Text style={styles.legendText}>Aviso pendiente</Text>
-          </View>
-          <View style={styles.legendItem}>
-            <View style={[styles.legendDiamond, { backgroundColor: statusTone.sincronizado.solid }]} />
-            <Text style={styles.legendText}>Aviso enviado</Text>
-          </View>
-        </>
-      ) : null}
+      <View style={[styles.legendSwatch, { backgroundColor: UNCERTAIN, opacity: 0.3 }]} />
+      <Text style={styles.legendText}>Más seguro</Text>
+      <View style={[styles.legendSwatch, { backgroundColor: UNCERTAIN }]} />
+      <Text style={styles.legendText}>Menos seguro</Text>
     </View>
   );
 }
@@ -668,152 +519,145 @@ function Legend({ layer, showReports }: { layer: LayerMode; showReports: boolean
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: surface.floor },
-  container: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: space.s16, gap: space.s48, paddingBottom: space.s48 },
-  containerWide: { maxWidth: layout.pageMaxWidth, paddingHorizontal: space.s32, gap: space.s96 },
-  section: { gap: space.s20 },
   flex: { flex: 1 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: space.s8 },
-  rowBetween: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: space.s8 },
-  pressed: { opacity: 0.8 },
-  subtext: { ...type.bodySm, fontSize: 13, lineHeight: 18, color: ink.secondary },
-  mono: { ...type.data, fontWeight: '500', fontSize: 11, color: ink.body, marginTop: 4 },
-  footnote: { ...type.bodySm, fontSize: 11, lineHeight: 16, color: ink.tertiary },
-  cardTitle: { ...type.subheading, color: ink.heading },
-  eyebrowSmall: { ...type.caption, color: accent.primary },
+  pressed: { opacity: 0.75 },
+  small: { ...type.bodySm, fontSize: 13, lineHeight: 19, color: ink.secondary },
+  mono: { ...type.data, fontSize: 12, color: ink.body, marginTop: 4 },
+  footnote: { ...type.bodySm, fontSize: 12, lineHeight: 17, color: ink.tertiary },
 
-  mission: { gap: space.s24, marginTop: -space.s24 },
-  missionWide: { flexDirection: 'row', alignItems: 'center', gap: space.s48, marginTop: 0 },
-  missionText: { gap: space.s16 },
-  checks: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s20 },
-  check: { flexDirection: 'row', alignItems: 'center', gap: space.s12 },
-  checkIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: accent.soft, alignItems: 'center', justifyContent: 'center' },
-  checkTitle: { ...type.label, fontSize: 14, fontWeight: '700', color: ink.heading },
+  container: { width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center', paddingHorizontal: space.s20, gap: space.s24 },
+  containerWide: { maxWidth: layout.pageMaxWidth, paddingHorizontal: space.s40, gap: space.s32 },
+  band: { paddingVertical: space.s48 },
+  bandArena: { backgroundColor: palette.arena },
+  bandWhite: { backgroundColor: palette.white },
+  bandRio: { backgroundColor: palette.rio, paddingVertical: space.s40 },
 
-  filterRow: { flexDirection: 'row', gap: space.s8, alignSelf: 'center', width: '100%', maxWidth: 520 },
-  filterPill: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 6,
-    paddingVertical: 11,
-    paddingHorizontal: space.s8,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: accent.border,
-    backgroundColor: surface.panel,
-  },
-  filterPillActive: { backgroundColor: accent.primary, borderColor: accent.primary, ...shadow.glow },
-  filterText: { ...type.label, fontSize: 13, color: accent.primary, flexShrink: 1 },
-  filterTextActive: { color: ink.onSolid },
-  countRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: space.s8 },
-  countPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.s12, paddingVertical: 6, borderRadius: radius.pill, borderWidth: 1 },
-  dot: { width: 8, height: 8, borderRadius: 4 },
-  countText: { ...type.label, fontSize: 12 },
+  /* Hero */
+  hero: { backgroundColor: palette.selva, overflow: 'hidden' },
+  shadeLeft: { position: 'absolute', left: 0, top: 0, bottom: 0, width: '60%' },
+  shadeBottom: { position: 'absolute', left: 0, right: 0, bottom: 0, width: '100%' },
+  heroInner: { flex: 1, justifyContent: 'flex-end', paddingHorizontal: space.s20, paddingBottom: space.s32, gap: space.s20 },
+  heroInnerWide: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', paddingHorizontal: space.s48, paddingBottom: space.s48, width: '100%', maxWidth: 1280, alignSelf: 'center' },
+  heroText: { gap: space.s16, maxWidth: 560, flexShrink: 1 },
+  heroTextWide: { maxWidth: 620 },
+  heroTitle: { ...type.display, fontSize: 52, lineHeight: 50, color: palette.arena },
+  heroTitleWide: { fontSize: 88, lineHeight: 84, letterSpacing: -1.6 },
+  heroLead: { ...type.body, fontSize: 16, lineHeight: 25, color: ink.onDarkSoft },
+  heroLeadWide: { fontSize: 18, lineHeight: 28 },
+  heroActions: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s12, marginTop: space.s4 },
+  heroLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s16 },
+  heroLegendWide: { flexDirection: 'column', gap: space.s8, alignItems: 'flex-start' },
+  legendMark: { flexDirection: 'row', alignItems: 'center', gap: space.s8 },
+  legendMarkText: { ...type.bodySm, fontSize: 12, color: ink.onDarkSoft },
+  markMine: { width: 9, height: 9, borderWidth: 1, borderColor: palette.mercurio },
+  markMercury: { width: 7, height: 7, borderRadius: 4, backgroundColor: palette.mercurioLight },
+  markTown: { width: 7, height: 7, borderRadius: 4, backgroundColor: palette.arena },
 
-  explorerWide: { flexDirection: 'row', gap: space.s24, alignItems: 'flex-start' },
-  explorerMap: { flex: 1.6 },
-  explorerSide: { flex: 1, maxWidth: 460 },
+  /* Recorrido del mercurio */
+  journey: { gap: 0 },
+  journeyTwo: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space.s32 },
+  journeyWide: { flexWrap: 'nowrap', columnGap: space.s24 },
+  step: { paddingVertical: space.s20, borderTopWidth: 2, borderTopColor: palette.selva, gap: space.s8 },
+  stepTwo: { width: '46%', flexGrow: 1 },
+  stepWide: { width: undefined, flex: 1 },
+  stepNumber: { fontFamily: FONT.narrowBold, fontSize: 44, lineHeight: 44, color: palette.rio },
+  stepTitle: { ...type.subheading, fontSize: 24, color: ink.heading },
+  stepText: { ...type.body, fontSize: 15, lineHeight: 23, color: ink.body },
+  stepLink: { fontFamily: FONT.textSemi, fontSize: 14, color: palette.rio, textDecorationLine: 'underline' },
 
-  mapCard: { borderRadius: radius.card, borderWidth: 1, borderColor: line.subtle, backgroundColor: surface.panel, padding: 6 },
-  map: { flex: 1 },
-  mapControls: { position: 'absolute', left: 16, bottom: 16, right: 16, flexDirection: 'row', flexWrap: 'wrap', gap: space.s8 },
-  mapBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: space.s12,
-    paddingVertical: 8,
-    borderRadius: radius.pill,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderWidth: 1,
-    borderColor: line.muted,
-    ...shadow.card,
-  },
-  mapBtnActive: { backgroundColor: accent.primary, borderColor: accent.primary },
-  mapBtnText: { ...type.label, fontSize: 12, color: accent.primary },
-  mapBtnTextActive: { color: ink.onSolid },
-  legendOverlay: {
-    position: 'absolute',
-    left: 16,
-    top: 92,
-    maxWidth: 180,
-    padding: 10,
-    borderRadius: radius.chip,
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    borderWidth: 1,
-    borderColor: line.subtle,
-    ...shadow.card,
-  },
-  mapToast: { position: 'absolute', alignSelf: 'center', top: 16, paddingHorizontal: space.s12, paddingVertical: 6, borderRadius: radius.pill, backgroundColor: statusTone.pendiente.solid },
-  mapToastText: { ...type.caption, color: ink.onSolid },
-  legend: { gap: 6 },
+  /* Mapa */
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-end', gap: space.s24, borderBottomWidth: 1, borderBottomColor: line.muted },
+  tab: { paddingVertical: space.s12, borderBottomWidth: 3, borderBottomColor: 'transparent', marginBottom: -1 },
+  tabActive: { borderBottomColor: palette.selva },
+  tabText: { fontFamily: FONT.narrowSemi, fontSize: 20, color: ink.tertiary },
+  tabTextActive: { color: palette.selva },
+  tabLegend: { marginLeft: 'auto', paddingBottom: space.s12 },
+  legend: { flexDirection: 'row', alignItems: 'center', gap: space.s8, flexWrap: 'wrap' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendSwatch: { width: 12, height: 12, borderRadius: 3 },
-  legendDiamond: { width: 9, height: 9, borderRadius: 2, transform: [{ rotate: '45deg' }], marginHorizontal: 1.5 },
-  legendText: { ...type.bodySm, fontSize: 11, lineHeight: 14, color: ink.body },
-  scaleBar: { flexDirection: 'row', borderRadius: 3, overflow: 'hidden' },
-  scaleStep: { width: 16, height: 8 },
+  legendSwatch: { width: 14, height: 10 },
+  legendText: { ...type.bodySm, fontSize: 12, color: ink.secondary },
+  scaleBar: { flexDirection: 'row' },
+  scaleStep: { width: 18, height: 10 },
 
-  detail: { borderWidth: 1.5 },
-  reportBox: { gap: space.s8, paddingBottom: space.s12, borderBottomWidth: 1, borderBottomColor: line.subtle },
-  reportThumb: { width: 60, height: 60, borderRadius: radius.chip, backgroundColor: surface.raised },
-  reportThumbEmpty: { alignItems: 'center', justifyContent: 'center' },
-  riskBanner: { flexDirection: 'row', alignItems: 'center', gap: space.s12, padding: space.s12, borderRadius: radius.panel },
-  riskIcon: { width: 50, height: 50, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
-  riskLabel: { ...type.caption, fontSize: 11 },
-  detailName: { ...type.subheading, color: ink.heading, marginTop: 2 },
-  metricsRow: { flexDirection: 'row', gap: space.s12 },
-  metricBox: { flex: 1, backgroundColor: surface.raised, borderRadius: radius.panel, padding: space.s16, gap: 2, borderWidth: 1.5, borderColor: 'transparent' },
-  metricBoxActive: { borderColor: accent.primary, backgroundColor: palette.white },
-  metricLabel: { ...type.caption, color: ink.secondary },
-  metricValueRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 4 },
-  metricValue: { ...type.data, fontSize: 34, lineHeight: 38, letterSpacing: -1, color: ink.heading },
-  metricUnit: { ...type.label, fontSize: 13, color: ink.secondary, marginBottom: 5 },
-  metricFoot: { ...type.bodySm, fontSize: 12, color: accent.primary, fontWeight: '600' },
-  infoRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: space.s8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: line.subtle },
-  infoLabel: { ...type.bodySm, fontSize: 13, color: ink.secondary, flexShrink: 1 },
-  infoValue: { ...type.data, fontSize: 14, color: ink.heading },
-  scoreRow: { gap: 6 },
-  scoreLabel: { ...type.label, fontSize: 13, color: ink.body },
-  scoreValue: { ...type.data, fontSize: 13, color: ink.heading },
-  track: { height: 8, borderRadius: 4, backgroundColor: surface.raised, overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 4 },
-  hintBox: { flexDirection: 'row', gap: space.s8, padding: space.s12, borderRadius: radius.input, borderLeftWidth: 4, backgroundColor: surface.raised },
-  hintText: { ...type.bodySm, flex: 1, fontSize: 13, lineHeight: 19, color: ink.body },
+  explorerRow: { flexDirection: 'row', gap: space.s32, alignItems: 'flex-start' },
+  explorerMap: { flex: 1.65 },
+  mapFrame: { borderRadius: radius.badge, overflow: 'hidden', borderWidth: 1, borderColor: line.muted, backgroundColor: palette.arena },
+  map: { flex: 1, borderRadius: 0 },
+  mapControls: { position: 'absolute', left: 12, bottom: 12, right: 12, flexDirection: 'row', flexWrap: 'wrap', gap: space.s8 },
+  mapBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: space.s12, paddingVertical: 8, borderRadius: radius.input, backgroundColor: palette.arena, borderWidth: 1, borderColor: line.ghost },
+  mapBtnActive: { backgroundColor: palette.selva, borderColor: palette.selva },
+  mapBtnText: { fontFamily: FONT.textSemi, fontSize: 13, color: palette.selva },
+  mapBtnTextActive: { color: palette.arena },
+  mapToast: { position: 'absolute', alignSelf: 'center', top: 12, paddingHorizontal: space.s12, paddingVertical: 6, borderRadius: radius.input, backgroundColor: palette.selva },
+  mapToastText: { ...type.caption, color: palette.arena },
 
-  qgisTag: { backgroundColor: accent.soft, paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.badge },
-  qgisTagText: { ...type.caption, color: accent.primary },
-  geoChips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s8 },
-  geoChip: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingHorizontal: space.s12, paddingVertical: 8, borderRadius: radius.pill, borderWidth: 1.5, borderColor: line.muted, backgroundColor: surface.panel },
-  geoChipActive: { borderColor: accent.primary, backgroundColor: accent.soft },
-  geoChipText: { ...type.label, fontSize: 12, color: ink.secondary },
-  geoChipTextActive: { color: ink.heading },
-  geoChipCount: { ...type.data, fontWeight: '600', fontSize: 10, color: ink.tertiary },
-  swWrap: { width: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
-  swOff: { opacity: 0.35 },
-  swLine: { width: 14, height: 3, borderRadius: 2 },
+  detail: { gap: space.s16 },
+  detailSide: { flex: 1, maxWidth: 420 },
+  reportBox: { flexDirection: 'row', gap: space.s12, alignItems: 'flex-start', padding: space.s12, backgroundColor: surface.raised, borderRadius: radius.input },
+  reportThumb: { width: 56, height: 56, borderRadius: radius.badge },
+  reportTitle: { fontFamily: FONT.textSemi, fontSize: 15, color: ink.heading },
+  riskHead: { borderLeftWidth: 6, paddingLeft: space.s16, gap: 4 },
+  riskWord: { fontFamily: FONT.narrowBold, fontSize: 40, lineHeight: 42 },
+  zoneName: { fontFamily: FONT.narrowSemi, fontSize: 22, lineHeight: 26, color: ink.heading },
+  figures: { flexDirection: 'row', borderTopWidth: 1, borderBottomWidth: 1, borderColor: line.muted },
+  figure: { flex: 1, paddingVertical: space.s12, paddingRight: space.s8, gap: 2 },
+  figureActive: { backgroundColor: surface.raised, paddingLeft: space.s8 },
+  figureValue: { fontFamily: FONT.narrowBold, fontSize: 32, lineHeight: 36, color: ink.heading, fontVariant: ['tabular-nums'] },
+  figureUnit: { fontFamily: FONT.text, fontSize: 13, color: ink.secondary },
+  figureLabel: { ...type.bodySm, fontSize: 12, lineHeight: 16, color: ink.secondary },
+  meter: { gap: 6 },
+  meterHead: { flexDirection: 'row', justifyContent: 'space-between' },
+  meterLabel: { fontFamily: FONT.textSemi, fontSize: 14, color: ink.body },
+  meterValue: { ...type.data, fontSize: 15, color: ink.heading },
+  meterTrack: { height: 6, backgroundColor: surface.overlay },
+  meterFill: { height: 6, backgroundColor: palette.rio },
+  hint: { ...type.body, fontSize: 15, lineHeight: 23, color: ink.body },
+  faqLinks: { gap: 2 },
+  faqLink: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  faqLinkText: { fontFamily: FONT.textSemi, fontSize: 14, color: palette.rio, flex: 1, textDecorationLine: 'underline' },
+
+  layersBox: { gap: space.s12, paddingTop: space.s16, borderTopWidth: 1, borderTopColor: line.subtle },
+  layersTitle: { ...type.subheading, color: ink.heading },
+  layersGrid: { gap: 2 },
+  layersGridWide: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space.s32 },
+  toggle: { flexDirection: 'row', alignItems: 'center', gap: space.s12, paddingVertical: 8, minWidth: 260 },
+  checkbox: { width: 20, height: 20, borderRadius: 3, borderWidth: 1.5, borderColor: palette.selva, alignItems: 'center', justifyContent: 'center' },
+  checkboxOn: { backgroundColor: palette.selva },
+  swWrap: { width: 16, alignItems: 'center' },
+  swLine: { width: 16, height: 3 },
   swPoint: { width: 9, height: 9, borderRadius: 5, borderWidth: 1, borderColor: palette.white },
-  swPoly: { width: 13, height: 11, borderRadius: 2, borderWidth: 1, opacity: 0.9 },
+  swPoly: { width: 14, height: 11, borderWidth: 1 },
+  toggleText: { ...type.bodySm, fontSize: 14, color: ink.body },
+  toggleTextOff: { color: ink.tertiary },
+  toggleCount: { ...type.data, fontSize: 13, color: ink.tertiary },
 
-  zonesGrid: { gap: space.s16, flexDirection: 'row', flexWrap: 'wrap' },
-  zoneCol: { flex: 1, minWidth: 280 },
-  zoneCard: { width: '100%', gap: space.s8, padding: space.s20, borderRadius: radius.card, backgroundColor: surface.panel, borderWidth: 1, borderColor: line.subtle },
-  zoneIndex: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: palette.white },
-  zoneIndexText: { ...type.data, color: ink.onSolid, fontSize: 13 },
-  levelBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1 },
-  levelBadgeText: { ...type.caption, fontSize: 10 },
-  zoneName: { ...type.subheading, fontSize: 16, color: ink.heading },
-  zoneStats: { flexDirection: 'row', justifyContent: 'space-between', marginTop: space.s8, paddingTop: space.s12, borderTopWidth: 1, borderTopColor: line.subtle },
-  zoneStatValue: { ...type.data, fontSize: 18, color: ink.heading },
-  zoneStatLabel: { ...type.bodySm, fontSize: 11, color: ink.tertiary },
-  zoneLink: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: space.s4 },
-  zoneLinkText: { ...type.label, fontSize: 13, color: accent.primary },
+  /* Tabla de tramos */
+  table: { borderTopWidth: 2, borderTopColor: palette.selva },
+  row: { flexDirection: 'row', alignItems: 'center', gap: space.s16, paddingVertical: space.s16, borderBottomWidth: 1, borderBottomColor: line.muted },
+  rowStack: { flexWrap: 'wrap', rowGap: space.s8 },
+  rowHead: { paddingVertical: space.s8 },
+  rowSelected: { backgroundColor: 'rgba(23,51,38,0.06)' },
+  cellHead: { fontFamily: FONT.textSemi, fontSize: 13, color: ink.secondary },
+  cellName: { flex: 3, minWidth: 240 },
+  cellNum: { flex: 1, minWidth: 90 },
+  cellRisk: { flex: 1.2, minWidth: 130 },
+  nameCell: { flexDirection: 'row', alignItems: 'center', gap: space.s12 },
+  zoneDot: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  zoneDotText: { fontFamily: FONT.narrowBold, fontSize: 15, color: palette.white },
+  rowTitle: { fontFamily: FONT.narrowSemi, fontSize: 19, lineHeight: 23, color: ink.heading },
+  rowNumber: { fontFamily: FONT.narrowSemi, fontSize: 20, color: ink.heading, fontVariant: ['tabular-nums'] },
+  rowUnit: { fontFamily: FONT.text, fontSize: 12, color: ink.secondary },
+  levelChip: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 4, borderRadius: radius.pill, borderWidth: 1 },
+  levelDot: { width: 8, height: 8, borderRadius: 4 },
+  levelText: { fontFamily: FONT.textSemi, fontSize: 13 },
 
-  faqWide: { width: '100%', maxWidth: 820, alignSelf: 'center' },
-  faqLink: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: space.s12, borderRadius: radius.input, backgroundColor: accent.soft },
-  faqLinkText: { ...type.label, flex: 1, fontSize: 13, color: accent.primary },
-  featuresGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s12 },
-  featureCell: { width: '47%', flexGrow: 1 },
-  featureCellWide: { width: '31%' },
+  /* Preguntas */
+  faqRow: { flexDirection: 'row', alignItems: 'flex-start', gap: space.s64 },
+  faqIntro: { width: 340 },
+
+  /* Llamado a reportar */
+  callRow: { flexDirection: 'row', alignItems: 'center', gap: space.s40 },
+  callTitle: { fontFamily: FONT.narrowBold, fontSize: 32, lineHeight: 34, color: palette.white },
+  callTitleWide: { fontSize: 40, lineHeight: 42 },
+  callLead: { ...type.body, color: 'rgba(255,255,255,0.86)', marginTop: space.s8, maxWidth: 620 },
 });

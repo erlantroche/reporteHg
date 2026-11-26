@@ -1,11 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Archivo_400Regular, Archivo_600SemiBold, Archivo_700Bold } from '@expo-google-fonts/archivo';
+import { ArchivoNarrow_500Medium, ArchivoNarrow_600SemiBold, ArchivoNarrow_700Bold } from '@expo-google-fonts/archivo-narrow';
+import { useFonts } from 'expo-font';
 import { Tabs, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
 import { ColorValue, Platform, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { ConnectivityBadge } from '../components/ConnectivityBadge';
 import { IntroScreen, IntroTarget } from '../components/IntroScreen';
-import { accent, ink, line, palette, radius, surface, type } from '../constants/hg-theme';
+import { FONT, ink, palette, radius, surface } from '../constants/hg-theme';
 import { ReportsProvider } from '../context/ReportsContext';
 
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -22,15 +25,10 @@ function tabIcon(active: IconName, inactive: IconName) {
 function HeaderTitle({ children }: { children: string }) {
   return (
     <View style={styles.headerTitle}>
-      <View style={styles.logo}>
-        <Text style={styles.logoText}>Hg</Text>
-      </View>
-      <View>
-        <Text style={styles.brand}>ReporteHg</Text>
-        <Text style={styles.section} numberOfLines={1}>
-          {children}
-        </Text>
-      </View>
+      <Text style={styles.brand}>ReporteHg</Text>
+      <Text style={styles.section} numberOfLines={1}>
+        {children}
+      </Text>
     </View>
   );
 }
@@ -43,6 +41,14 @@ export default function RootLayout() {
   // En web la página se pre-renderiza en el servidor (ancho 0). Dibujamos el diseño recién en el navegador
   // para que coincidan el tamaño de pantalla y la posición de la barra de navegación (evita errores de hidratación).
   const [mounted, setMounted] = useState(Platform.OS !== 'web');
+  const [fontsLoaded, fontError] = useFonts({
+    Archivo_400Regular,
+    Archivo_600SemiBold,
+    Archivo_700Bold,
+    ArchivoNarrow_500Medium,
+    ArchivoNarrow_600SemiBold,
+    ArchivoNarrow_700Bold,
+  });
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -52,11 +58,11 @@ export default function RootLayout() {
     if (target === 'report') router.navigate('/report');
   };
 
-  if (!mounted) return <View style={styles.root} />;
+  if (!mounted || (!fontsLoaded && !fontError)) return <View style={styles.root} />;
 
   return (
     <ReportsProvider>
-      <StatusBar style={showIntro ? 'light' : 'dark'} />
+      <StatusBar style="light" />
       <View style={styles.root}>
         <Tabs
           screenOptions={{
@@ -65,31 +71,31 @@ export default function RootLayout() {
             headerRight: () => <ConnectivityBadge compact={width < 380} />,
             headerStyle: styles.header,
             headerShadowVisible: false,
-            headerTintColor: ink.heading,
+            headerTintColor: palette.arena,
             sceneStyle: { backgroundColor: surface.floor },
-            tabBarActiveTintColor: accent.primary,
-            tabBarInactiveTintColor: ink.tertiary,
+            tabBarActiveTintColor: palette.arena,
+            tabBarInactiveTintColor: 'rgba(230,220,203,0.55)',
             tabBarHideOnKeyboard: true,
             tabBarPosition: wide ? 'left' : 'bottom',
             tabBarVariant: wide ? 'material' : 'uikit',
             tabBarLabelPosition: wide ? 'beside-icon' : 'below-icon',
             tabBarLabelStyle: wide ? styles.tabLabelWide : styles.tabLabel,
-            tabBarActiveBackgroundColor: wide ? accent.soft : undefined,
+            tabBarActiveBackgroundColor: wide ? 'rgba(230,220,203,0.12)' : undefined,
             tabBarItemStyle: wide ? styles.tabItemWide : undefined,
             tabBarStyle: wide ? styles.tabBarWide : styles.tabBar,
           }}
         >
           <Tabs.Screen
             name="index"
-            options={{ title: 'Mapa de Riesgo', tabBarLabel: 'Mapa', tabBarIcon: tabIcon('map', 'map-outline') }}
+            options={{ title: 'Mapa de riesgo', tabBarLabel: 'Mapa', tabBarIcon: tabIcon('map', 'map-outline') }}
           />
           <Tabs.Screen
             name="report"
-            options={{ title: 'Reportar (Offline)', tabBarLabel: 'Reportar', tabBarIcon: tabIcon('megaphone', 'megaphone-outline') }}
+            options={{ title: 'Reportar', tabBarLabel: 'Reportar', tabBarIcon: tabIcon('megaphone', 'megaphone-outline') }}
           />
           <Tabs.Screen
             name="chat"
-            options={{ title: 'Asistente RAG', tabBarLabel: 'Asistente', tabBarIcon: tabIcon('chatbubbles', 'chatbubbles-outline') }}
+            options={{ title: 'Asistente', tabBarLabel: 'Asistente', tabBarIcon: tabIcon('chatbubbles', 'chatbubbles-outline') }}
           />
         </Tabs>
 
@@ -100,39 +106,25 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: surface.floor },
-  header: {
-    backgroundColor: palette.white,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: line.subtle,
-  },
-  headerTitle: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  logo: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
-    backgroundColor: accent.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoText: { ...type.data, color: ink.onSolid, fontSize: 13 },
-  brand: { ...type.caption, color: accent.primary },
-  section: { ...type.label, fontWeight: '800', color: ink.heading },
-  tabLabel: { ...type.caption, fontSize: 10, letterSpacing: 0.4 },
-  tabLabelWide: { ...type.label, fontSize: 14, marginLeft: 12 },
+  root: { flex: 1, backgroundColor: palette.selva },
+  header: { backgroundColor: palette.selva },
+  headerTitle: { flexDirection: 'row', alignItems: 'baseline', gap: 10 },
+  brand: { fontFamily: FONT.narrowBold, fontSize: 20, color: palette.arena },
+  section: { fontFamily: FONT.text, fontSize: 14, color: ink.onDarkSoft },
+  tabLabel: { fontFamily: FONT.textSemi, fontSize: 11 },
+  tabLabelWide: { fontFamily: FONT.textSemi, fontSize: 15, marginLeft: 12 },
   tabBar: {
-    backgroundColor: palette.white,
-    borderTopColor: line.subtle,
+    backgroundColor: palette.selva,
+    borderTopColor: 'rgba(230,220,203,0.15)',
     borderTopWidth: StyleSheet.hairlineWidth,
     ...(Platform.OS === 'web' ? { height: 62, paddingBottom: 8, paddingTop: 8 } : null),
   },
   tabBarWide: {
     width: 220,
-    backgroundColor: palette.white,
-    borderRightColor: line.subtle,
-    borderRightWidth: StyleSheet.hairlineWidth,
+    backgroundColor: palette.selva,
+    borderRightWidth: 0,
     paddingTop: 12,
     paddingHorizontal: 10,
   },
-  tabItemWide: { borderRadius: radius.chip, marginVertical: 2, paddingHorizontal: 8 },
+  tabItemWide: { borderRadius: radius.input, marginVertical: 2, paddingHorizontal: 8 },
 });

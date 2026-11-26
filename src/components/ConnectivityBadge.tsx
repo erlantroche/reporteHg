@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
   },
   spinner: { transform: [{ scale: 0.6 }], width: 13, height: 13 },
-  text: { ...type.caption, fontSize: 10, letterSpacing: 0.6 },
+  text: { ...type.caption, fontSize: 12 },
   count: {
     minWidth: 16,
     height: 16,

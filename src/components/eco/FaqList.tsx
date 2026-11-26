@@ -1,35 +1,30 @@
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import React, { useMemo, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { accent, ink, line, radius, shadow, space, surface, type } from '../../constants/hg-theme';
+import { FONT, ink, line, palette, space, type } from '../../constants/hg-theme';
 import { FAQ, FAQ_TOPICS, FaqItem, FaqTopic, FaqVerification, VERIFICATION_LABEL } from '../../data/faq';
-import { Reveal } from '../motion/Reveal';
 
-const VERIFY_STYLE: Record<FaqVerification, { icon: keyof typeof Ionicons.glyphMap; color: string; bg: string }> = {
-  sí: { icon: 'shield-checkmark', color: '#166534', bg: '#DCFCE7' },
-  parcial: { icon: 'shield-half', color: '#B45309', bg: '#FEF3C7' },
-  propio: { icon: 'people', color: '#1E5AA8', bg: '#DBEAFE' },
+const VERIFY_ICON: Record<FaqVerification, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
+  sí: { icon: 'checkmark-circle', color: '#2C5C33' },
+  parcial: { icon: 'ellipse-outline', color: '#8A5B07' },
+  propio: { icon: 'people-outline', color: '#5A6459' },
 };
 
-/** Etiqueta de verificación + fuente de una respuesta. */
+/** Nivel de verificación y fuente de una respuesta. */
 export function FaqSource({ item, compact }: { item: FaqItem; compact?: boolean }) {
-  const v = VERIFY_STYLE[item.verificado] ?? VERIFY_STYLE.parcial;
+  const v = VERIFY_ICON[item.verificado] ?? VERIFY_ICON.parcial;
   return (
     <View style={styles.sourceWrap}>
-      <View style={[styles.verify, { backgroundColor: v.bg }]}>
-        <Ionicons name={v.icon} size={11} color={v.color} />
+      <View style={styles.verify}>
+        <Ionicons name={v.icon} size={14} color={v.color} />
         <Text style={[styles.verifyText, { color: v.color }]}>{VERIFICATION_LABEL[item.verificado] ?? item.verificado}</Text>
       </View>
-      {!compact ? (
-        <Text style={styles.source} numberOfLines={2}>
-          Fuente: {item.fuente}
-        </Text>
-      ) : null}
+      {!compact ? <Text style={styles.source}>Fuente: {item.fuente}</Text> : null}
     </View>
   );
 }
 
-/** Lista de preguntas frecuentes por tema, con respuestas desplegables. */
+/** Preguntas frecuentes por tema, con respuestas que se despliegan al tocarlas. */
 export function FaqList({
   ids,
   initialTopic = 'peces',
@@ -37,7 +32,6 @@ export function FaqList({
   onAsk,
   askLabel = 'Preguntar al asistente',
 }: {
-  /** Mostrar solo estas preguntas (ignora los temas). */
   ids?: number[];
   initialTopic?: FaqTopic;
   showTopics?: boolean;
@@ -55,10 +49,9 @@ export function FaqList({
   return (
     <View style={styles.wrap}>
       {showTopics && !ids ? (
-        <View style={styles.topics}>
+        <View style={styles.tabs} accessibilityRole="tablist">
           {FAQ_TOPICS.map((t) => {
             const active = t.id === topic;
-            const count = FAQ.filter((f) => f.tema === t.id).length;
             return (
               <Pressable
                 key={t.id}
@@ -66,99 +59,74 @@ export function FaqList({
                   setTopic(t.id);
                   setOpen(null);
                 }}
-                style={({ pressed }) => [styles.topic, active && styles.topicActive, pressed && styles.pressed]}
+                style={[styles.tab, active && styles.tabActive]}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: active }}
               >
-                <MaterialCommunityIcons name={t.icon} size={16} color={active ? ink.onSolid : accent.primary} />
-                <Text style={[styles.topicText, active && styles.topicTextActive]}>{t.label}</Text>
-                <Text style={[styles.topicCount, active && styles.topicTextActive]}>{count}</Text>
+                <Text style={[styles.tabText, active && styles.tabTextActive]}>
+                  {t.label} <Text style={styles.tabCount}>{FAQ.filter((f) => f.tema === t.id).length}</Text>
+                </Text>
               </Pressable>
             );
           })}
         </View>
       ) : null}
 
-      {items.map((item, i) => {
-        const isOpen = open === item.id;
-        return (
-          <Reveal key={`${topic}-${item.id}`} delay={Math.min(i, 6) * 60} distance={18}>
-            <View style={[styles.item, isOpen && styles.itemOpen]}>
+      <View>
+        {items.map((item) => {
+          const isOpen = open === item.id;
+          return (
+            <View key={`${topic}-${item.id}`} style={styles.item}>
               <Pressable
                 onPress={() => setOpen(isOpen ? null : item.id)}
-                style={styles.question}
+                style={({ pressed }) => [styles.question, pressed && styles.pressed]}
                 accessibilityRole="button"
                 accessibilityState={{ expanded: isOpen }}
               >
                 <Text style={[styles.questionText, isOpen && styles.questionTextOpen]}>{item.pregunta}</Text>
-                <View style={[styles.chevron, isOpen && styles.chevronOpen]}>
-                  <Ionicons name={isOpen ? 'remove' : 'add'} size={18} color={isOpen ? ink.onSolid : accent.primary} />
-                </View>
+                <Ionicons name={isOpen ? 'remove' : 'add'} size={22} color={palette.selva} />
               </Pressable>
               {isOpen ? (
-                <Reveal from="fade" duration={500}>
-                  <View style={styles.answer}>
-                    <Text style={styles.answerText}>{item.respuesta}</Text>
-                    <FaqSource item={item} />
-                    {onAsk ? (
-                      <Pressable onPress={() => onAsk(item)} style={({ pressed }) => [styles.ask, pressed && styles.pressed]}>
-                        <Ionicons name="chatbubbles-outline" size={15} color={accent.primary} />
-                        <Text style={styles.askText}>{askLabel}</Text>
-                        <Ionicons name="arrow-forward" size={14} color={accent.primary} />
-                      </Pressable>
-                    ) : null}
-                  </View>
-                </Reveal>
+                <View style={styles.answer}>
+                  <Text style={styles.answerText}>{item.respuesta}</Text>
+                  <FaqSource item={item} />
+                  {onAsk ? (
+                    <Pressable onPress={() => onAsk(item)} style={({ pressed }) => [styles.ask, pressed && styles.pressed]}>
+                      <Ionicons name="chatbubbles-outline" size={16} color={palette.rio} />
+                      <Text style={styles.askText}>{askLabel}</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
               ) : null}
             </View>
-          </Reveal>
-        );
-      })}
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space.s12 },
-  pressed: { opacity: 0.8 },
-  topics: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s8, marginBottom: space.s4 },
-  topic: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: space.s16,
-    paddingVertical: 9,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: accent.border,
-    backgroundColor: surface.panel,
-  },
-  topicActive: { backgroundColor: accent.primary, borderColor: accent.primary, ...shadow.glow },
-  topicText: { ...type.label, fontSize: 13, color: accent.primary },
-  topicTextActive: { color: ink.onSolid },
-  topicCount: { ...type.data, fontSize: 11, color: ink.tertiary },
+  wrap: { gap: space.s8 },
+  pressed: { opacity: 0.7 },
+  tabs: { flexDirection: 'row', flexWrap: 'wrap', columnGap: space.s20, borderBottomWidth: 1, borderBottomColor: line.muted },
+  tab: { paddingVertical: space.s12, borderBottomWidth: 3, borderBottomColor: 'transparent', marginBottom: -1 },
+  tabActive: { borderBottomColor: palette.selva },
+  tabText: { fontFamily: FONT.narrowSemi, fontSize: 19, color: ink.tertiary },
+  tabTextActive: { color: palette.selva },
+  tabCount: { fontFamily: FONT.text, fontSize: 13, color: ink.tertiary },
 
-  item: {
-    borderRadius: radius.panel,
-    borderWidth: 1,
-    borderColor: line.subtle,
-    backgroundColor: surface.panel,
-    overflow: 'hidden',
-    ...shadow.card,
-  },
-  itemOpen: { borderColor: accent.border },
-  question: { flexDirection: 'row', alignItems: 'center', gap: space.s12, paddingHorizontal: space.s16, paddingVertical: 14 },
-  questionText: { ...type.label, flex: 1, fontSize: 15, lineHeight: 21, color: ink.heading },
-  questionTextOpen: { color: accent.primary },
-  chevron: { width: 30, height: 30, borderRadius: 15, backgroundColor: accent.soft, alignItems: 'center', justifyContent: 'center' },
-  chevronOpen: { backgroundColor: accent.primary },
-  answer: { paddingHorizontal: space.s16, paddingBottom: space.s16, gap: space.s12 },
-  answerText: { ...type.body, fontSize: 15, lineHeight: 23, color: ink.body },
-  ask: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start' },
-  askText: { ...type.label, fontSize: 13, color: accent.primary },
+  item: { borderBottomWidth: 1, borderBottomColor: line.subtle },
+  question: { flexDirection: 'row', alignItems: 'center', gap: space.s12, paddingVertical: space.s16 },
+  questionText: { flex: 1, fontFamily: FONT.textSemi, fontSize: 16, lineHeight: 22, color: ink.heading },
+  questionTextOpen: { color: palette.rio },
+  answer: { paddingBottom: space.s20, gap: space.s12, maxWidth: 680 },
+  answerText: { ...type.body, fontSize: 16, lineHeight: 26, color: ink.body },
+  ask: { flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', paddingVertical: 4 },
+  askText: { fontFamily: FONT.textSemi, fontSize: 14, color: palette.rio, textDecorationLine: 'underline' },
 
-  sourceWrap: { gap: 6 },
-  verify: { flexDirection: 'row', alignItems: 'center', gap: 4, alignSelf: 'flex-start', paddingHorizontal: 8, paddingVertical: 3, borderRadius: radius.pill },
-  verifyText: { ...type.caption, fontSize: 9, letterSpacing: 0.4 },
-  source: { ...type.bodySm, fontSize: 11, lineHeight: 15, color: ink.tertiary },
+  sourceWrap: { gap: 4 },
+  verify: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  verifyText: { fontFamily: FONT.textSemi, fontSize: 13 },
+  source: { ...type.bodySm, fontSize: 12, lineHeight: 17, color: ink.tertiary },
 });

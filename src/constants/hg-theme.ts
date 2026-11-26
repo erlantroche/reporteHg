@@ -1,110 +1,118 @@
 /**
- * ReporteHg — tema "Eco" (verde claro, inspirado en el video de referencia).
- * Fondos claros, verdes de naturaleza, fotos de bosque, acento lima en botones secundarios.
- * El semáforo de riesgo y los estados Pendiente / Sincronizado se mantienen con alto contraste.
+ * ReporteHg — dirección visual "El río lo cuenta".
+ * Colores tomados del territorio: agua café del río, selva, mercurio plateado y arena de playa.
+ * Tipografía: Archivo Narrow (títulos y cifras, carácter de señalética) + Archivo (texto).
+ * El rojo de alerta se usa solo para riesgo alto.
  */
 import { Platform, TextStyle, ViewStyle } from 'react-native';
 
 export const palette = {
-  page: '#F4F7F1',
+  selva: '#173326',
+  selvaSoft: '#24473A',
+  rio: '#8A6A43',
+  rioLight: '#B08A5A',
+  mercurio: '#C3C9CE',
+  mercurioLight: '#DDE2E6',
+  arena: '#E6DCCB',
+  arenaDark: '#D3C4AA',
   white: '#FFFFFF',
-  mist: '#EEF4EA',
-  sage: '#E2ECDD',
-  leaf: '#C9DCC0',
-  moss: '#8FB386',
-  green: '#2E7D32',
-  greenDark: '#1F5E24',
-  forest: '#14261A',
-  bark: '#3F5245',
-  stone: '#66796B',
-  pebble: '#8FA093',
-  lime: '#E3F35B',
-  limeDark: '#C9DB34',
-  night: '#1E2420',
-  /* compatibilidad con pantallas anteriores */
-  steel: '#C9D6C3',
-  mapGreen: '#2E7D32',
+  alerta: '#C8321E',
+  /* compatibilidad con componentes anteriores */
+  page: '#E6DCCB',
+  green: '#173326',
+  steel: '#BDAF95',
+  mapGreen: '#3E7A46',
+} as const;
+
+/** Nombres de las fuentes cargadas en _layout (expo-google-fonts). */
+export const FONT = {
+  text: 'Archivo_400Regular',
+  textSemi: 'Archivo_600SemiBold',
+  textBold: 'Archivo_700Bold',
+  narrow: 'ArchivoNarrow_500Medium',
+  narrowSemi: 'ArchivoNarrow_600SemiBold',
+  narrowBold: 'ArchivoNarrow_700Bold',
 } as const;
 
 export const surface = {
-  floor: palette.page, // fondo de página
-  panel: palette.white, // tarjetas
-  raised: palette.mist, // paneles anidados / inputs
-  overlay: palette.sage, // presionado / hover
-  dark: palette.night, // footer / bandas oscuras
+  floor: palette.arena,
+  panel: palette.white,
+  raised: '#F1EBDF',
+  overlay: '#E9E0CF',
+  dark: palette.selva,
 } as const;
 
 export const ink = {
-  heading: palette.forest,
-  body: palette.bark,
-  secondary: palette.stone,
-  tertiary: palette.pebble,
-  disabled: '#B5C2B8',
-  /** Texto sobre colores sólidos (botón verde, badges de riesgo). */
+  heading: palette.selva,
+  body: '#33443A',
+  secondary: '#5A6459',
+  tertiary: '#857D6B',
+  disabled: '#B5AA95',
   onSolid: '#FFFFFF',
-  /** Texto sobre el acento lima. */
-  onLime: '#1B2A10',
-  /** Texto claro sobre fotos o bandas oscuras. */
-  onImage: '#FFFFFF',
-  onImageSoft: 'rgba(255,255,255,0.86)',
+  onLime: '#FFFFFF',
+  onImage: palette.arena,
+  onImageSoft: 'rgba(230, 220, 203, 0.78)',
+  onDark: palette.arena,
+  onDarkSoft: 'rgba(230, 220, 203, 0.72)',
 } as const;
 
 export const line = {
-  subtle: '#E3EADF',
-  muted: '#D2DDCC',
-  ghost: '#BFCDB8',
-  pill: palette.green,
+  subtle: '#DDD2BF',
+  muted: '#CDBFA6',
+  ghost: '#B9AA8E',
+  pill: palette.selva,
 } as const;
 
 export const accent = {
-  primary: palette.green,
-  pressed: palette.greenDark,
-  soft: 'rgba(46, 125, 50, 0.10)',
-  border: 'rgba(46, 125, 50, 0.35)',
-  lime: palette.lime,
-  limePressed: palette.limeDark,
+  primary: palette.selva,
+  pressed: '#0F241A',
+  soft: 'rgba(23, 51, 38, 0.07)',
+  border: 'rgba(23, 51, 38, 0.28)',
+  /** Acción secundaria: color del río. */
+  lime: palette.rio,
+  limePressed: '#6F5434',
+  rio: palette.rio,
 } as const;
 
 export type Tone = { solid: string; text: string; soft: string; border: string };
 
+/** Semáforo de riesgo. */
 export const riskTone: Record<'bajo' | 'medio' | 'alto', Tone> = {
-  alto: { solid: '#DC2626', text: '#B91C1C', soft: '#FEE2E2', border: '#FCA5A5' },
-  medio: { solid: '#D97706', text: '#B45309', soft: '#FEF3C7', border: '#FCD34D' },
-  bajo: { solid: '#16A34A', text: '#15803D', soft: '#DCFCE7', border: '#86EFAC' },
+  alto: { solid: palette.alerta, text: '#A3260F', soft: '#F6DDD5', border: '#E3A08F' },
+  medio: { solid: '#C98A1B', text: '#8A5B07', soft: '#F5E6C6', border: '#E0BE79' },
+  bajo: { solid: '#3E7A46', text: '#2C5C33', soft: '#DCE9D6', border: '#9DC39F' },
 };
 
 export const statusTone: Record<'pendiente' | 'sincronizado', Tone> = {
-  pendiente: { solid: '#D97706', text: '#B45309', soft: '#FEF3C7', border: '#FBBF24' },
-  sincronizado: { solid: '#15803D', text: '#166534', soft: '#DCFCE7', border: '#4ADE80' },
+  pendiente: { solid: '#C98A1B', text: '#8A5B07', soft: '#F5E6C6', border: '#D9AE59' },
+  sincronizado: { solid: '#3E7A46', text: '#2C5C33', soft: '#DCE9D6', border: '#7FAE83' },
 };
 
-export const radius = { badge: 6, input: 12, chip: 14, panel: 18, card: 24, pill: 100 } as const;
+/** Radios pequeños y con jerarquía: mapa/foto 4, botones y campos 6, chips de estado redondos. */
+export const radius = { badge: 4, input: 6, chip: 6, panel: 6, card: 8, pill: 999 } as const;
 
 export const space = { s4: 4, s8: 8, s12: 12, s16: 16, s20: 20, s24: 24, s32: 32, s40: 40, s48: 48, s64: 64, s96: 96 } as const;
 
-export const layout = { maxWidth: 760, pageMaxWidth: 1200 } as const;
+export const layout = { maxWidth: 760, pageMaxWidth: 1180 } as const;
 
-/** Sombras suaves (boxShadow funciona en web y en la nueva arquitectura de React Native). */
+/** Sin sombras decorativas: la profundidad viene del color de fondo y de líneas finas. */
 export const shadow = {
-  card: { boxShadow: '0px 10px 30px rgba(20, 38, 26, 0.08)' },
-  float: { boxShadow: '0px 24px 60px rgba(20, 38, 26, 0.18)' },
-  glow: { boxShadow: '0px 8px 24px rgba(46, 125, 50, 0.35)' },
+  card: {},
+  float: {},
+  glow: {},
 } satisfies Record<string, ViewStyle>;
 
-export const fontFamily = Platform.select<string | undefined>({
-  web: 'Inter, "DM Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
-  default: undefined,
-});
+export const fontFamily = Platform.select<string | undefined>({ default: FONT.text });
 
 export const type = {
-  caption: { fontFamily, fontSize: 10, lineHeight: 14, letterSpacing: 0.8, fontWeight: '700', textTransform: 'uppercase' },
-  eyebrow: { fontFamily, fontSize: 12, lineHeight: 16, letterSpacing: 0.2, fontWeight: '600' },
-  bodySm: { fontFamily, fontSize: 14, lineHeight: 20, fontWeight: '400' },
-  body: { fontFamily, fontSize: 16, lineHeight: 24, fontWeight: '400' },
-  label: { fontFamily, fontSize: 15, lineHeight: 20, fontWeight: '600' },
-  subheading: { fontFamily, fontSize: 18, lineHeight: 24, fontWeight: '700' },
-  headingSm: { fontFamily, fontSize: 24, lineHeight: 30, fontWeight: '800', letterSpacing: -0.4 },
-  heading: { fontFamily, fontSize: 32, lineHeight: 38, fontWeight: '800', letterSpacing: -0.8 },
-  display: { fontFamily, fontSize: 44, lineHeight: 48, fontWeight: '800', letterSpacing: -1.2 },
-  data: { fontFamily, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  caption: { fontFamily: FONT.textSemi, fontSize: 12, lineHeight: 16 },
+  eyebrow: { fontFamily: FONT.textSemi, fontSize: 13, lineHeight: 18 },
+  bodySm: { fontFamily: FONT.text, fontSize: 14, lineHeight: 21 },
+  body: { fontFamily: FONT.text, fontSize: 16, lineHeight: 25 },
+  label: { fontFamily: FONT.textSemi, fontSize: 15, lineHeight: 20 },
+  subheading: { fontFamily: FONT.narrowSemi, fontSize: 21, lineHeight: 25 },
+  headingSm: { fontFamily: FONT.narrowBold, fontSize: 28, lineHeight: 31 },
+  heading: { fontFamily: FONT.narrowBold, fontSize: 40, lineHeight: 42, letterSpacing: -0.4 },
+  display: { fontFamily: FONT.narrowBold, fontSize: 56, lineHeight: 56, letterSpacing: -0.8 },
+  data: { fontFamily: FONT.narrowSemi, fontVariant: ['tabular-nums'] },
 } satisfies Record<string, TextStyle>;

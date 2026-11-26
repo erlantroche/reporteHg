@@ -4,7 +4,6 @@ import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Animated,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -18,13 +17,14 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { Button, Footer, IMAGES, PageHero } from '../components/eco/ui';
+import { Button, Footer } from '../components/eco/ui';
 import { FaqSource } from '../components/eco/FaqList';
 import { HgMap } from '../components/map/HgMap';
-import { Reveal, RevealProvider, useRevealScroll } from '../components/motion/Reveal';
+import { RiverArt } from '../components/RiverArt';
 import type { MapPoint } from '../components/map/mapBridge';
 import {
   accent,
+  FONT,
   ink,
   layout,
   line,
@@ -47,6 +47,7 @@ import { useCurrentLocation } from '../hooks/useCurrentLocation';
 type IonName = keyof typeof Ionicons.glyphMap;
 
 const WIDE_BREAKPOINT = 1024;
+const FILL = { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 } as const;
 const DEPARTMENT_SUGGESTIONS = ['La Paz', 'Beni', 'Pando'];
 
 const STATUS_META: Record<CitizenReport['status'], { label: string; icon: IonName; hint: string }> = {
@@ -82,7 +83,6 @@ export default function ReportScreen() {
 
   const router = useRouter();
   const location = useCurrentLocation({ auto: true });
-  const reveal = useRevealScroll();
   const scrollRef = useRef<{ scrollTo: (o: { y: number; animated?: boolean }) => void } | null>(null);
   const formY = useRef(0);
   const contentY = useRef(0);
@@ -229,7 +229,6 @@ export default function ReportScreen() {
 
   const stepsBlock = (
     <View style={styles.stepsCard}>
-      <Text style={styles.stepsEyebrow}>Así de fácil</Text>
       <View style={styles.stepsRow}>
         {STEPS.map((s, i) => (
           <View key={s.title} style={styles.stepItem}>
@@ -285,7 +284,7 @@ export default function ReportScreen() {
         <View style={styles.tipIcon}>
           <Ionicons name="bulb" size={16} color={accent.primary} />
         </View>
-        <Text style={styles.tipEyebrow}>Mientras reportas · consejo verificado</Text>
+        <Text style={styles.tipEyebrow}>Consejo verificado para lo que viste</Text>
       </View>
       <Text style={styles.tipQuestion}>{tipFaq.pregunta}</Text>
       <Text style={styles.tipAnswer} numberOfLines={4}>
@@ -499,11 +498,7 @@ export default function ReportScreen() {
           <Text style={styles.emptyText}>Aún no hay avisos guardados.</Text>
         </View>
       ) : (
-        reports.map((r, i) => (
-          <Reveal key={r.id} delay={Math.min(i, 5) * 80}>
-            <ReportCard report={r} syncing={syncing} onPress={() => setDetail(r)} />
-          </Reveal>
-        ))
+        reports.map((r) => <ReportCard key={r.id} report={r} syncing={syncing} onPress={() => setDetail(r)} />)
       )}
 
       <View style={styles.demoRow}>
@@ -533,9 +528,7 @@ export default function ReportScreen() {
       }}
     >
       {formBlocks.map((block, i) => (
-        <Reveal key={i} delay={i === 0 ? 80 : 0}>
-          {block}
-        </Reveal>
+        <React.Fragment key={i}>{block}</React.Fragment>
       ))}
     </View>
   );
@@ -546,50 +539,39 @@ export default function ReportScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
     >
-      <RevealProvider value={reveal.ctx}>
-        <Animated.ScrollView
-          ref={scrollRef as never}
-          style={styles.screen}
-          onScroll={reveal.onScroll}
-          scrollEventThrottle={16}
-          keyboardShouldPersistTaps="handled"
-        >
-          <PageHero
-            source={IMAGES.river}
-            dark
-            eyebrow="Reporte ciudadano · anónimo"
-            eyebrowIcon="shield-checkmark"
-            title="¿Viste algo"
-            highlight="en el río?"
-            subtitle="Avisa en 3 pasos. No pedimos tu nombre y funciona aunque no tengas señal."
-            height={wide ? 480 : 380}
-          >
-            <Button label="Empezar aviso" icon="arrow-down" variant="lime" onPress={scrollToForm} />
-          </PageHero>
-
-          <View
-            style={[styles.content, wide && styles.contentWide]}
-            onLayout={(e) => {
-              contentY.current = e.nativeEvent.layout.y;
-            }}
-          >
-            <Reveal>{connectionBanner}</Reveal>
-            <Reveal delay={100}>{stepsBlock}</Reveal>
-            {twoCols ? (
-              <View style={styles.wideRow}>
-                <View style={styles.wideCol}>{form}</View>
-                <View style={[styles.wideCol, styles.wideSide]}>{listBlock}</View>
-              </View>
-            ) : (
-              <>
-                {form}
-                {listBlock}
-              </>
-            )}
+      <ScrollView ref={scrollRef as never} style={styles.screen} keyboardShouldPersistTaps="handled">
+        <View style={[styles.header, { height: wide ? 300 : 250 }]}>
+          <RiverArt style={StyleSheet.absoluteFill} compact labels={false} focus="guanay" />
+          <View style={styles.headerDim} />
+          <View style={[styles.headerInner, wide && styles.headerInnerWide]}>
+            <Text style={[styles.headerTitle, wide && styles.headerTitleWide]}>¿Viste algo en el río?</Text>
+            <Text style={styles.headerLead}>Avísalo en tres pasos. No pedimos tu nombre y funciona aunque no tengas señal.</Text>
+            <Button label="Empezar" icon="arrow-down" variant="light" onPress={scrollToForm} style={styles.headerBtn} />
           </View>
-          <Footer />
-        </Animated.ScrollView>
-      </RevealProvider>
+        </View>
+
+        <View
+          style={[styles.content, wide && styles.contentWide]}
+          onLayout={(e) => {
+            contentY.current = e.nativeEvent.layout.y;
+          }}
+        >
+          {connectionBanner}
+          {stepsBlock}
+          {twoCols ? (
+            <View style={styles.wideRow}>
+              <View style={styles.wideCol}>{form}</View>
+              <View style={[styles.wideCol, styles.wideSide]}>{listBlock}</View>
+            </View>
+          ) : (
+            <>
+              {form}
+              {listBlock}
+            </>
+          )}
+        </View>
+        <Footer />
+      </ScrollView>
 
       <ReportDetailModal report={detail} onClose={() => setDetail(null)} />
     </KeyboardAvoidingView>
@@ -830,8 +812,16 @@ const styles = StyleSheet.create({
     maxWidth: layout.maxWidth,
     alignSelf: 'center',
     paddingBottom: space.s48,
-    marginTop: -space.s32,
+    paddingTop: space.s24,
   },
+  header: { backgroundColor: palette.selva, overflow: 'hidden' },
+  headerDim: { ...FILL, backgroundColor: 'rgba(23, 51, 38, 0.62)' },
+  headerInner: { flex: 1, justifyContent: 'flex-end', gap: space.s12, padding: space.s20, width: '100%', maxWidth: layout.maxWidth, alignSelf: 'center' },
+  headerInnerWide: { maxWidth: 1100, paddingHorizontal: space.s32, paddingBottom: space.s32 },
+  headerTitle: { fontFamily: FONT.narrowBold, fontSize: 44, lineHeight: 44, color: palette.arena },
+  headerTitleWide: { fontSize: 64, lineHeight: 62 },
+  headerLead: { ...type.body, color: ink.onDarkSoft, maxWidth: 520 },
+  headerBtn: { alignSelf: 'flex-start' },
   contentWide: { maxWidth: 1100, paddingHorizontal: space.s32, gap: space.s24 },
   wideRow: { flexDirection: 'row', gap: space.s24, alignItems: 'flex-start' },
   wideCol: { flex: 1 },

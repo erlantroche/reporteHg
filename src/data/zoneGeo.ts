@@ -125,8 +125,9 @@ export interface GridCell {
   opacity: number;
 }
 
-const HAZARD_RAMP = ['#24405F', '#2F6FB8', '#4FA3F0', '#A9D8FF'];
-const UNCERTAIN_COLOR = '#A0AABA';
+/** Escala de mercurio: de plata clara (poco probable) a pizarra oscura (muy probable). */
+const HAZARD_RAMP = ['#D5DADE', '#A3ACB4', '#6B7785', '#36414E'];
+const UNCERTAIN_COLOR = '#8B8F87';
 
 export function hazardColor(probability: number): string {
   if (probability >= 0.75) return HAZARD_RAMP[3];
@@ -163,7 +164,7 @@ export function buildRiskGrid(zones: RiskZone[], layer: MapLayer, cellsAcross = 
         opacity = 0.42 * fade;
       } else if (layer === 'peligro') {
         color = hazardColor(est.probability);
-        opacity = (0.22 + 0.45 * est.probability) * fade;
+        opacity = (0.3 + 0.45 * est.probability) * fade;
       } else {
         color = UNCERTAIN_COLOR;
         opacity = 0.08 + 0.55 * est.uncertainty;

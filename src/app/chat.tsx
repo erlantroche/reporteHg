@@ -16,9 +16,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FaqList, FaqSource } from '../components/eco/FaqList';
-import { IMAGES } from '../components/eco/ui';
-import { Float, Reveal } from '../components/motion/Reveal';
-import { accent, ink, layout, line, radius, shadow, space, statusTone, surface, type } from '../constants/hg-theme';
+import { Reveal } from '../components/motion/Reveal';
+import { RiverArt } from '../components/RiverArt';
+import { accent, FONT, ink, layout, line, palette, radius, space, statusTone, surface, type } from '../constants/hg-theme';
 import { useReports } from '../context/ReportsContext';
 import { FAQ, faqById, FaqItem, relatedFaq, searchFaq } from '../data/faq';
 import { RAG_MOCK_ANSWERS } from '../data/mocks';
@@ -103,30 +103,22 @@ export default function ChatScreen() {
 
   const chat = (
     <View style={[styles.chatCol, wide && styles.chatColWide]}>
-      <Reveal from="blur" duration={1000}>
-        <View style={[styles.heroCard, shadow.float]}>
-          <Image source={IMAGES.forestCard} resizeMode="cover" style={FILL} />
-          <View style={styles.heroDim} />
-          <Float style={styles.heroDeco} amplitude={6} period={4600}>
-            <View style={styles.heroDisc} />
-          </Float>
-          <View style={styles.heroContent}>
-            <View style={styles.heroAvatar}>
-              <Ionicons name="sparkles" size={20} color={accent.primary} />
-            </View>
-            <View style={styles.flex}>
-              <Text style={styles.heroTitle}>Asistente ReporteHg</Text>
-              <Text style={styles.heroText}>Respuestas verificadas sobre mercurio, pescado, salud y minería.</Text>
-            </View>
-            {!wide ? (
-              <Pressable onPress={() => setFaqOpen(true)} style={({ pressed }) => [styles.faqBtn, pressed && styles.pressed]}>
-                <Ionicons name="list" size={14} color={ink.onLime} />
-                <Text style={styles.faqBtnText}>FAQ</Text>
-              </Pressable>
-            ) : null}
+      <View style={styles.heroCard}>
+        <RiverArt style={FILL} compact labels={false} focus="guanay" />
+        <View style={styles.heroDim} />
+        <View style={styles.heroContent}>
+          <View style={styles.flex}>
+            <Text style={styles.heroTitle}>Asistente</Text>
+            <Text style={styles.heroText}>Pregunta sobre pescado, salud, retortas o el agua del río.</Text>
           </View>
+          {!wide ? (
+            <Pressable onPress={() => setFaqOpen(true)} style={({ pressed }) => [styles.faqBtn, pressed && styles.pressed]}>
+              <Ionicons name="list" size={15} color={palette.selva} />
+              <Text style={styles.faqBtnText}>Ver preguntas</Text>
+            </Pressable>
+          ) : null}
         </View>
-      </Reveal>
+      </View>
 
       <View style={[styles.statusRow, !isOnline && styles.statusRowOffline]}>
         <Ionicons
@@ -162,10 +154,10 @@ export default function ChatScreen() {
           return (
             <Reveal key={idx} from="left" distance={18} duration={600} delay={idx === 0 ? 400 : 250} style={styles.botRow}>
               <View style={styles.avatar}>
-                <Ionicons name="sparkles" size={14} color={ink.onSolid} />
+                <Text style={styles.avatarText}>Hg</Text>
               </View>
               <View style={styles.botColumn}>
-                <Text style={styles.senderLabel}>{faq ? 'Respuesta verificada' : 'Asistente ReporteHg'}</Text>
+                <Text style={styles.senderLabel}>{faq ? 'Respuesta de las preguntas frecuentes' : 'Asistente (demo en línea)'}</Text>
                 <View style={[styles.bubble, styles.botBubble]}>
                   {faq ? <Text style={styles.faqQuestion}>{faq.pregunta}</Text> : null}
                   <Text style={styles.botText}>{m.text}</Text>
@@ -178,7 +170,6 @@ export default function ChatScreen() {
                       if (!s) return null;
                       return (
                         <Pressable key={id} onPress={() => askFaq(s)} style={({ pressed }) => [styles.followUp, pressed && styles.pressed]}>
-                          <Ionicons name="return-down-forward" size={13} color={accent.primary} />
                           <Text style={styles.followUpText}>{s.pregunta}</Text>
                         </Pressable>
                       );
@@ -229,7 +220,7 @@ export default function ChatScreen() {
           accessibilityRole="button"
           accessibilityLabel="Enviar consulta"
         >
-          <Ionicons name="arrow-up" size={20} color={canSend ? ink.onSolid : ink.tertiary} />
+          <Ionicons name="arrow-up" size={20} color={canSend ? palette.arena : ink.tertiary} />
         </Pressable>
       </View>
     </View>
@@ -246,10 +237,7 @@ export default function ChatScreen() {
           {chat}
           <View style={styles.faqPanel}>
             <ScrollView contentContainerStyle={styles.faqPanelContent}>
-              <Text style={styles.faqTitle}>
-                Preguntas frecuentes{'\n'}
-                <Text style={styles.faqTitleHighlight}>respuestas verificadas</Text>
-              </Text>
+              <Text style={styles.faqTitle}>Preguntas frecuentes</Text>
               <Text style={styles.faqSubtitle}>{FAQ.length} respuestas basadas en estudios, la OMS y guías mineras. Funcionan sin internet.</Text>
               <FaqList onAsk={askFaq} askLabel="Preguntar en el chat" />
             </ScrollView>
@@ -288,20 +276,17 @@ const styles = StyleSheet.create({
   wideRow: { flex: 1, flexDirection: 'row', gap: space.s24, paddingHorizontal: space.s24 },
   faqPanel: { width: 420, flexShrink: 0, paddingTop: space.s12 },
   faqPanelContent: { gap: space.s12, paddingBottom: space.s40 },
-  faqTitle: { ...type.headingSm, color: ink.heading },
-  faqTitleHighlight: { color: accent.primary },
+  faqTitle: { ...type.headingSm, fontSize: 30, lineHeight: 32, color: ink.heading },
+  faqTitleHighlight: { color: ink.heading },
   faqSubtitle: { ...type.bodySm, fontSize: 13, color: ink.secondary, marginBottom: space.s8 },
 
-  heroCard: { marginHorizontal: space.s16, marginTop: space.s12, height: 120, borderRadius: radius.card, overflow: 'hidden', backgroundColor: '#14261A' },
-  heroDim: { ...FILL, backgroundColor: 'rgba(10, 30, 14, 0.35)' },
-  heroDeco: { position: 'absolute', right: -20, top: -24 },
-  heroDisc: { width: 110, height: 110, borderRadius: 55, backgroundColor: 'rgba(255,255,255,0.14)' },
+  heroCard: { marginHorizontal: space.s16, marginTop: space.s12, height: 112, borderRadius: radius.card, overflow: 'hidden', backgroundColor: palette.selva },
+  heroDim: { ...FILL, backgroundColor: 'rgba(23, 51, 38, 0.45)' },
   heroContent: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.s12, paddingHorizontal: space.s20 },
-  heroAvatar: { width: 46, height: 46, borderRadius: 23, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
-  heroTitle: { ...type.subheading, color: ink.onImage },
-  heroText: { ...type.bodySm, fontSize: 13, lineHeight: 18, color: ink.onImageSoft, marginTop: 2 },
-  faqBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 12, paddingVertical: 8, borderRadius: radius.pill, backgroundColor: accent.lime },
-  faqBtnText: { ...type.label, fontSize: 12, fontWeight: '800', color: ink.onLime },
+  heroTitle: { fontFamily: FONT.narrowBold, fontSize: 32, lineHeight: 34, color: palette.arena },
+  heroText: { ...type.bodySm, color: ink.onDarkSoft, marginTop: 2 },
+  faqBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.input, backgroundColor: palette.arena },
+  faqBtnText: { fontFamily: FONT.textSemi, fontSize: 13, color: palette.selva },
 
   statusRow: {
     flexDirection: 'row',
@@ -319,42 +304,34 @@ const styles = StyleSheet.create({
 
   chatBox: { padding: space.s16, gap: space.s16 },
   botRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, maxWidth: '92%' },
-  avatar: { width: 30, height: 30, borderRadius: 15, backgroundColor: accent.primary, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
+  avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: palette.selva, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
+  avatarText: { fontFamily: FONT.narrowBold, fontSize: 13, color: palette.arena },
   botColumn: { flexShrink: 1, gap: 6 },
-  senderLabel: { ...type.caption, color: accent.primary, marginLeft: 2 },
-  bubble: { paddingHorizontal: space.s16, paddingVertical: space.s12, borderRadius: 20, gap: space.s8 },
-  botBubble: { backgroundColor: surface.panel, borderWidth: 1, borderColor: line.subtle, borderTopLeftRadius: 6, ...shadow.card },
+  senderLabel: { ...type.caption, color: ink.tertiary, marginLeft: 2 },
+  bubble: { paddingHorizontal: space.s16, paddingVertical: space.s12, borderRadius: radius.card, gap: space.s8 },
+  botBubble: { backgroundColor: surface.panel, borderWidth: 1, borderColor: line.subtle, borderTopLeftRadius: 2 },
   userWrap: { alignSelf: 'flex-end', maxWidth: '82%' },
-  userBubble: { backgroundColor: accent.primary, borderBottomRightRadius: 6, ...shadow.glow },
-  faqQuestion: { ...type.label, fontSize: 14, color: accent.primary },
+  userBubble: { backgroundColor: palette.selva, borderBottomRightRadius: 2 },
+  faqQuestion: { fontFamily: FONT.narrowSemi, fontSize: 19, lineHeight: 23, color: ink.heading },
   botText: { ...type.body, fontSize: 15, lineHeight: 22, color: ink.body },
-  userText: { ...type.body, fontSize: 15, lineHeight: 22, color: ink.onSolid },
+  userText: { ...type.body, fontSize: 15, lineHeight: 22, color: palette.arena },
   followUps: { gap: 6, marginTop: 2 },
-  followUp: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    alignSelf: 'flex-start',
-    paddingHorizontal: space.s12,
-    paddingVertical: 7,
-    borderRadius: radius.pill,
-    backgroundColor: accent.soft,
-  },
-  followUpText: { ...type.label, fontSize: 12, color: accent.primary, flexShrink: 1 },
+  followUp: { alignSelf: 'flex-start', paddingVertical: 4 },
+  followUpText: { fontFamily: FONT.textSemi, fontSize: 14, color: palette.rio, textDecorationLine: 'underline', flexShrink: 1 },
   disclaimer: { ...type.bodySm, fontSize: 11, color: ink.tertiary, textAlign: 'center' },
 
   suggestionsScroll: { flexGrow: 0 },
   suggestions: { paddingHorizontal: space.s16, paddingBottom: 10, gap: space.s8 },
   suggestion: {
-    paddingHorizontal: space.s16,
+    paddingHorizontal: space.s12,
     paddingVertical: space.s8,
-    borderRadius: radius.pill,
-    borderWidth: 1.5,
-    borderColor: accent.border,
+    borderRadius: radius.input,
+    borderWidth: 1,
+    borderColor: line.ghost,
     backgroundColor: surface.panel,
   },
-  suggestionPressed: { backgroundColor: accent.soft },
-  suggestionText: { ...type.label, fontSize: 12, color: accent.primary },
+  suggestionPressed: { backgroundColor: surface.overlay },
+  suggestionText: { fontFamily: FONT.textSemi, fontSize: 13, color: palette.selva },
 
   inputBar: {
     flexDirection: 'row',
@@ -365,21 +342,20 @@ const styles = StyleSheet.create({
     paddingLeft: space.s20,
     paddingRight: 6,
     paddingVertical: 6,
-    borderRadius: radius.pill,
+    borderRadius: radius.card,
     backgroundColor: surface.panel,
     borderWidth: 1,
-    borderColor: line.muted,
-    ...shadow.card,
+    borderColor: line.ghost,
   },
   input: { ...type.body, flex: 1, fontSize: 15, color: ink.heading, paddingVertical: Platform.OS === 'ios' ? 10 : 6 },
-  sendBtn: { width: 42, height: 42, borderRadius: 21, backgroundColor: accent.primary, alignItems: 'center', justifyContent: 'center' },
+  sendBtn: { width: 42, height: 42, borderRadius: radius.input, backgroundColor: palette.selva, alignItems: 'center', justifyContent: 'center' },
   sendBtnPressed: { backgroundColor: accent.pressed },
   sendBtnDisabled: { backgroundColor: surface.overlay },
 
   sheetBackdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(20, 38, 26, 0.45)' },
-  sheet: { maxHeight: '88%', borderTopLeftRadius: 28, borderTopRightRadius: 28, backgroundColor: surface.floor, paddingTop: space.s8 },
+  sheet: { maxHeight: '88%', borderTopLeftRadius: 12, borderTopRightRadius: 12, backgroundColor: palette.white, paddingTop: space.s8 },
   sheetHandle: { alignSelf: 'center', width: 44, height: 5, borderRadius: 3, backgroundColor: line.ghost, marginBottom: space.s8 },
   sheetHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: space.s20, paddingBottom: space.s8 },
-  sheetTitle: { ...type.headingSm, fontSize: 22, color: ink.heading },
+  sheetTitle: { ...type.headingSm, fontSize: 26, color: ink.heading },
   sheetContent: { paddingHorizontal: space.s16, paddingBottom: space.s24 },
 });

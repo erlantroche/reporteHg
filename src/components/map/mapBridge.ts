@@ -184,7 +184,7 @@ export function handleMapOutbound(
   }
 }
 
-export const MAP_BACKGROUND = '#E8EFE6';
+export const MAP_BACKGROUND = '#E6DCCB';
 
 /** Página HTML autocontenida con Leaflet (se carga desde CDN; requiere internet para el mapa base). */
 export function buildMapHtml(config: { center: MapPoint; zoom: number; base: 'light' | 'dark' | 'sat' }): string {
@@ -196,22 +196,22 @@ export function buildMapHtml(config: { center: MapPoint; zoom: number; base: 'li
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" onerror="this.onerror=null;this.href='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css'" />
 <style>
   html,body,#map{margin:0;padding:0;height:100%;width:100%;background:${MAP_BACKGROUND};}
-  body{font-family:Inter,"DM Sans",-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;}
+  body{font-family:Archivo,-apple-system,system-ui,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent;}
   .leaflet-container{background:${MAP_BACKGROUND};font-family:inherit;}
   .leaflet-control-attribution{background:rgba(255,255,255,.85)!important;color:#66796B!important;font-size:9px!important;border-radius:6px 0 0 0;}
-  .leaflet-control-attribution a{color:#2E7D32!important;}
-  .leaflet-bar{border:1px solid #D2DDCC!important;border-radius:14px!important;overflow:hidden;box-shadow:0 8px 20px rgba(20,38,26,.12)!important;}
-  .leaflet-bar a{background:#fff!important;color:#14261A!important;border-bottom-color:#E3EADF!important;}
-  .leaflet-bar a:hover{background:#EEF4EA!important;}
-  .leaflet-control-layers{background:#fff!important;color:#3F5245!important;border:1px solid #D2DDCC!important;border-radius:14px!important;box-shadow:0 8px 20px rgba(20,38,26,.12)!important;}
+  .leaflet-control-attribution a{color:#8A6A43!important;}
+  .leaflet-bar{border:1px solid #B9AA8E!important;border-radius:6px!important;overflow:hidden;box-shadow:none!important;}
+  .leaflet-bar a{background:#E6DCCB!important;color:#173326!important;border-bottom-color:#CDBFA6!important;}
+  .leaflet-bar a:hover{background:#D3C4AA!important;}
+  .leaflet-control-layers{background:#E6DCCB!important;color:#173326!important;border:1px solid #B9AA8E!important;border-radius:6px!important;box-shadow:none!important;}
   .leaflet-control-layers-expanded{padding:8px 12px!important;}
-  .leaflet-popup-content-wrapper{background:#fff;color:#14261A;border-radius:14px;box-shadow:0 12px 30px rgba(20,38,26,.18);}
+  .leaflet-popup-content-wrapper{background:#fff;color:#173326;border-radius:6px;box-shadow:0 6px 18px rgba(23,51,38,.2);}
   .leaflet-popup-content{margin:10px 14px;font-size:13px;line-height:1.4;}
   .leaflet-popup-tip{background:#fff;}
-  .pp-t{font-weight:800;color:#14261A;} .pp-s{color:#66796B;font-size:12px;margin-top:2px;}
+  .pp-t{font-weight:700;color:#173326;} .pp-s{color:#5A6459;font-size:12px;margin-top:2px;}
   .zone{position:relative;width:30px;height:30px;animation:pop .6s cubic-bezier(.16,1,.3,1) both;}
   .zone .glow{position:absolute;left:-10px;top:-10px;width:50px;height:50px;border-radius:50%;opacity:.25;animation:breathe 2.6s ease-in-out infinite;}
-  .zone .ring{display:none;position:absolute;left:-7px;top:-7px;width:40px;height:40px;border-radius:50%;border:2px solid #14261A;box-sizing:border-box;}
+  .zone .ring{display:none;position:absolute;left:-7px;top:-7px;width:40px;height:40px;border-radius:50%;border:2px solid #173326;box-sizing:border-box;}
   .zone.sel .ring{display:block;}
   .zone .dot{position:absolute;inset:0;border-radius:50%;border:3px solid #fff;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;box-shadow:0 4px 12px rgba(20,38,26,.25);}
   .rep{width:12px;height:12px;transform:rotate(45deg);border:2px solid #fff;border-radius:3px;box-sizing:content-box;box-shadow:0 2px 6px rgba(0,0,0,.25);animation:pop .5s ease both;}
@@ -221,12 +221,13 @@ export function buildMapHtml(config: { center: MapPoint; zoom: number; base: 'li
   @keyframes breathe{0%,100%{transform:scale(.9);opacity:.18}50%{transform:scale(1.15);opacity:.34}}
   .rep{animation:none;}
   .pin{position:relative;width:30px;height:42px;}
-  .pin .head{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#2E7D32;border:3px solid #fff;box-sizing:border-box;box-shadow:0 6px 14px rgba(20,38,26,.3);}
-  .pin .core{position:absolute;left:10px;top:10px;width:10px;height:10px;border-radius:50%;background:#E3F35B;}
+  .pin .head{position:absolute;left:0;top:0;width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#173326;border:3px solid #E6DCCB;box-sizing:border-box;box-shadow:0 4px 10px rgba(23,51,38,.35);}
+  .pin .core{position:absolute;left:10px;top:10px;width:10px;height:10px;border-radius:50%;background:#E6DCCB;}
   .pin .shadow{position:absolute;left:9px;bottom:0;width:12px;height:4px;border-radius:50%;background:rgba(0,0,0,.3);}
-  #hint{display:none;position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:800;background:#2E7D32;color:#fff;font-size:12px;font-weight:700;padding:6px 14px;border-radius:100px;pointer-events:none;white-space:nowrap;box-shadow:0 8px 20px rgba(46,125,50,.35);}
-  #offline{display:none;position:absolute;inset:0;z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:6px;text-align:center;color:#3F5245;padding:24px;font-size:13px;line-height:1.45;background:${MAP_BACKGROUND};}
-  #offline b{color:#14261A;font-size:15px;}
+  #hint{display:none;position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:800;background:#173326;color:#E6DCCB;font-size:13px;font-weight:600;padding:6px 14px;border-radius:6px;pointer-events:none;white-space:nowrap;}
+  #wheelhint{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:850;background:rgba(23,51,38,.88);color:#E6DCCB;font-size:13px;font-weight:600;padding:8px 14px;border-radius:6px;pointer-events:none;opacity:0;transition:opacity .25s;white-space:nowrap;}
+  #offline{display:none;position:absolute;inset:0;z-index:900;align-items:center;justify-content:center;flex-direction:column;gap:6px;text-align:center;color:#33443A;padding:24px;font-size:13px;line-height:1.45;background:${MAP_BACKGROUND};}
+  #offline b{color:#173326;font-size:15px;}
 </style>
 </head>
 <body>
@@ -265,8 +266,22 @@ export function buildMapHtml(config: { center: MapPoint; zoom: number; base: 'li
   });
 
   function init(){
-    var map = L.map('map', { zoomControl: true, attributionControl: true, preferCanvas: true, tap: true })
+    var map = L.map('map', { zoomControl: true, attributionControl: true, preferCanvas: true, tap: true, scrollWheelZoom: false })
       .setView([CFG.center.lat, CFG.center.lng], CFG.zoom);
+    // La rueda del mouse hace zoom solo después de hacer clic en el mapa (así no "atrapa" el scroll de la página).
+    var wheelHint = document.createElement('div');
+    wheelHint.id = 'wheelhint';
+    wheelHint.textContent = 'Haz clic en el mapa para acercar con la rueda';
+    document.body.appendChild(wheelHint);
+    var hintTimer = null;
+    map.getContainer().addEventListener('wheel', function(){
+      if (map.scrollWheelZoom.enabled()) return;
+      wheelHint.style.opacity = '1';
+      clearTimeout(hintTimer);
+      hintTimer = setTimeout(function(){ wheelHint.style.opacity = '0'; }, 1400);
+    }, { passive: true });
+    map.on('click', function(){ map.scrollWheelZoom.enable(); wheelHint.style.opacity = '0'; });
+    map.getContainer().addEventListener('mouseleave', function(){ map.scrollWheelZoom.disable(); });
     var dark = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}', { maxZoom: 16, attribution: 'Mapa &copy; Esri' });
     var sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 18, attribution: 'Imágenes &copy; Esri' });
     var light = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, attribution: 'Mapa &copy; Esri, HERE, Garmin, OpenStreetMap' });
