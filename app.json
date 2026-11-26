@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "reporteHg",
-    "slug": "reporteHg",
+    "name": "MercurIA",
+    "slug": "mercuria",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "reportehg",
+    "scheme": "mercuria",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/expo.icon"

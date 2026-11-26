@@ -112,7 +112,7 @@ export function Footer() {
     <View style={ui.footer}>
       <View style={[ui.footerInner, big && ui.footerInnerBig]}>
         <View style={ui.footerBrandCol}>
-          <Text style={ui.footerBrand}>ReporteHg</Text>
+          <Text style={ui.footerBrand}>MercurIA</Text>
           <Text style={ui.footerText}>
             Monitoreo ciudadano del mercurio en los ríos auríferos del norte de La Paz y el Beni.
           </Text>

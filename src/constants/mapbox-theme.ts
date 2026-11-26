@@ -1,5 +1,5 @@
 /**
- * ReporteHg — tokens de diseño basados en la referencia "Mapbox" (Refero).
+ * MercurIA — tokens de diseño basados en la referencia "Mapbox" (Refero).
  * Estética: consola cartográfica oscura, un solo acento azul (Signal Blue)
  * para acciones y estados activos. Los colores de semáforo de riesgo y de
  * estado de sincronización son colores de DATO (no decorativos) y se

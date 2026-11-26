@@ -25,7 +25,7 @@ function tabIcon(active: IconName, inactive: IconName) {
 function HeaderTitle({ children }: { children: string }) {
   return (
     <View style={styles.headerTitle}>
-      <Text style={styles.brand}>ReporteHg</Text>
+      <Text style={styles.brand}>MercurIA</Text>
       <Text style={styles.section} numberOfLines={1}>
         {children}
       </Text>

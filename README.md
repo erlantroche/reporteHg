@@ -1,4 +1,4 @@
-# ReporteHg
+# MercurIA
 
 Monitoreo ciudadano del riesgo por mercurio en zonas mineras de Bolivia (React Native + Expo Router).
 

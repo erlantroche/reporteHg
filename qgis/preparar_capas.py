@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-ReporteHg — Preparación de capas en QGIS
+MercurIA — Preparación de capas en QGIS
 ========================================
 
 Qué hace (todo automático):
@@ -161,7 +161,7 @@ RIESGO_COLOR = {"alto": "#FF4D4F", "medio": "#F5A524", "bajo": "#2FBF71"}
 # Utilidades
 # --------------------------------------------------------------------------
 def log(msg):
-    print("[ReporteHg] " + msg)
+    print("[MercurIA] " + msg)
     QApplication.processEvents()
 
 
@@ -175,7 +175,7 @@ def overpass(body):
     for url in OVERPASS_URLS:
         for intento in range(2):
             try:
-                req = urllib.request.Request(url, data=data, headers={"User-Agent": "ReporteHg-QGIS/1.0 (proyecto academico)"})
+                req = urllib.request.Request(url, data=data, headers={"User-Agent": "MercurIA-QGIS/1.0 (proyecto academico)"})
                 with urllib.request.urlopen(req, timeout=200, context=ctx) as resp:
                     return json.loads(resp.read().decode("utf-8"))
             except Exception as exc:  # noqa: BLE001
@@ -356,7 +356,7 @@ def main():
     os.makedirs(RAW_DIR, exist_ok=True)
     proyecto = QgsProject.instance()
     proyecto.setCrs(QgsCoordinateReferenceSystem("EPSG:3857"))
-    proyecto.setTitle("ReporteHg — Mapa de riesgo por mercurio")
+    proyecto.setTitle("MercurIA — Mapa de riesgo por mercurio")
 
     # Orden de grupos en el panel (arriba = encima en el mapa)
     for g in ("Zonas de la app", "Minería", "Exposición", "Vulnerabilidad", "Agua", "Contexto", "Mapas base"):

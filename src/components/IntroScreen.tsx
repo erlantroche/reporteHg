@@ -43,7 +43,7 @@ export function IntroScreen({ onFinish }: { onFinish: (target: IntroTarget) => v
       <Shade direction="up" max={0.97} style={[styles.shade, { height: wide ? '62%' : '78%' }]} />
 
       <View style={[styles.top, { paddingTop: insets.top + space.s16 }]}>
-        <Text style={styles.brand}>ReporteHg</Text>
+        <Text style={styles.brand}>MercurIA</Text>
         <Pressable onPress={() => finish('map')} hitSlop={12} accessibilityRole="button">
           <Text style={styles.skip}>Saltar</Text>
         </Pressable>

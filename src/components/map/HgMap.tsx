@@ -59,7 +59,7 @@ export function HgMap(props: HgMapProps) {
       <WebView
         ref={webRef}
         originWhitelist={['*']}
-        source={{ html, baseUrl: 'https://reportehg.app/' }}
+        source={{ html, baseUrl: 'https://mercuria.app/' }}
         onMessage={(e) => handleMapOutbound(e.nativeEvent.data, propsRef, setReady)}
         javaScriptEnabled
         domStorageEnabled

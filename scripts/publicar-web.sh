@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Publica la versión web de ReporteHg en GitHub Pages (rama gh-pages).
+# Publica la versión web de MercurIA en GitHub Pages (rama gh-pages).
 # Uso:  bash scripts/publicar-web.sh
 # Requisitos: el repositorio ya tiene un remoto "origin" en GitHub y tú puedes hacer push.
 set -euo pipefail

@@ -4,7 +4,7 @@ export type AppLang = 'es' | 'ay' | 'qu' | 'gn';
 
 const TRANSLATIONS: Record<AppLang, Record<string, string>> = {
   es: {
-    appTitle: 'ReporteHg — Riesgo y Alerta',
+    appTitle: 'MercurIA — Riesgo y Alerta',
     tabMap: 'Mapa de Riesgo',
     tabReport: 'Reportar (Offline)',
     tabChat: 'Asistente RAG',
@@ -16,7 +16,7 @@ const TRANSLATIONS: Record<AppLang, Record<string, string>> = {
     syncedLabel: 'Sincronizado',
   },
   ay: {
-    appTitle: 'ReporteHg — Qullqi Quri / Janq’u Uma',
+    appTitle: 'MercurIA — Qullqi Quri / Janq’u Uma',
     tabMap: 'Riesgo Mapa',
     tabReport: 'Yatiyawi (Offline)',
     tabChat: 'Yanapiri',
@@ -28,7 +28,7 @@ const TRANSLATIONS: Record<AppLang, Record<string, string>> = {
     syncedLabel: 'Apatawa',
   },
   qu: {
-    appTitle: 'ReporteHg — Riesgo Mapa',
+    appTitle: 'MercurIA — Riesgo Mapa',
     tabMap: 'Riesgo Mapa',
     tabReport: 'Willay (Offline)',
     tabChat: 'Yanapaq',
@@ -40,7 +40,7 @@ const TRANSLATIONS: Record<AppLang, Record<string, string>> = {
     syncedLabel: 'Apachisqa',
   },
   gn: {
-    appTitle: 'ReporteHg — Mapa de Riesgo',
+    appTitle: 'MercurIA — Mapa de Riesgo',
     tabMap: 'Mapa',
     tabReport: 'Mombe’u (Offline)',
     tabChat: 'Pytyvõhára',

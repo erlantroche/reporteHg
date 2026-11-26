@@ -46,7 +46,7 @@ export function HgMap(props: HgMapProps) {
       <iframe
         ref={frameRef}
         srcDoc={html}
-        title="Mapa de riesgo ReporteHg"
+        title="Mapa de riesgo MercurIA"
         style={{ border: 0, width: '100%', height: '100%', display: 'block', background: MAP_BACKGROUND }}
       />
     </View>

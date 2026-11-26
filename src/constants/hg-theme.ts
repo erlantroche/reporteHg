@@ -1,5 +1,5 @@
 /**
- * ReporteHg — dirección visual "El río lo cuenta".
+ * MercurIA — dirección visual "El río lo cuenta".
  * Colores tomados del territorio: agua café del río, selva, mercurio plateado y arena de playa.
  * Tipografía: Archivo Narrow (títulos y cifras, carácter de señalética) + Archivo (texto).
  * El rojo de alerta se usa solo para riesgo alto.
